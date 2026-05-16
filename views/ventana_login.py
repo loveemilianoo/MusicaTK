@@ -61,21 +61,17 @@ class VentanaLogin:
                                     bg=ACCENT, fg="white", font=("Helvetica", 11, "bold"))
         btn_login.pack(fill="x", pady=(18, 6))
 
-        Componentes.label(frame, "¿No tienes cuenta? Regístrate",
-                         font=FONT_SMALL, fg=ACCENT2, bg=BG_DARK, anchor="center").pack(pady=8)
-        Componentes.label(frame, "─── o continúa con ───",
-                         font=FONT_TINY, fg=TEXT_MUT, bg=BG_DARK, anchor="center").pack()
-
-        socials = tk.Frame(frame, bg=BG_DARK)
-        socials.pack(pady=10)
-        for icon in ["  Google  ", "  Apple  ", "  Facebook  "]:
-            b = tk.Frame(socials, bg=BG_CARD, cursor="hand2")
-            b.pack(side="left", padx=4, pady=2)
-            lbl2 = tk.Label(b, text=icon, fg=TEXT_SEC, bg=BG_CARD,
-                            font=FONT_SMALL, padx=8, pady=6)
-            lbl2.pack()
-            b.bind("<Button-1>", lambda e: messagebox.showinfo("Info", "Próximamente"))
-            lbl2.bind("<Button-1>", lambda e: messagebox.showinfo("Info", "Próximamente"))
+        # Botón registro
+        btn_registro = Componentes.btn(frame, "CREAR CUENTA", self._abrir_registro,
+                                      bg=BG_CARD, fg=TEXT_SEC, font=FONT_SMALL)
+        btn_registro.pack(fill="x", pady=6)
+    
+    def _abrir_registro(self):
+        from views.ventana_registro import VentanaRegistro
+        self.ventana.destroy()
+        app = VentanaRegistro()
+        app.ejecutar()
+        
     
     def iniciar_sesion(self):
         correo = self.entry_correo.get()

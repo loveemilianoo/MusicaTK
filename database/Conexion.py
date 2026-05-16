@@ -1,5 +1,4 @@
 import oracledb
-import os
 
 class ConexionDB:
     _instancia = None
@@ -16,7 +15,7 @@ class ConexionDB:
             # Configura según tu Oracle
             dsn = oracledb.makedsn("144.24.50.227", 1521, service_name="BASEORACPDB1")
             self.conexion = oracledb.connect(
-                user="SYSTEM",
+                user="MIPROYECTO",
                 password="oracle1",
                 dsn=dsn
             )

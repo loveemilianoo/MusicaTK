@@ -14,8 +14,7 @@ class UsuarioDAO(BaseController):
             cursor = conexion.cursor()
             
             # Primero insertar en Persona
-            query_persona = """INSERT INTO Persona (Nombre, Apellido, Correo, Sexo, Edad) 
-                               VALUES (:1, :2, :3, :4, :5) RETURNING id_persona INTO :6"""
+            query_persona = """INSERT INTO Persona (Nombre, Apellido, Correo, Sexo, Edad) VALUES (:1, :2, :3, :4, :5) RETURNING id_persona INTO :6"""
             
             id_persona = cursor.var(oracledb.NUMBER)
             cursor.execute(query_persona, (usuario.nombre, usuario.apellido, 
@@ -25,8 +24,7 @@ class UsuarioDAO(BaseController):
             id_persona_value = id_persona.getvalue()
             
             # Luego insertar en Usuario
-            query_usuario = """INSERT INTO Usuario (id_persona, Telefono, Membresia, Contrasena) 
-                              VALUES (:1, :2, :3, :4)"""
+            query_usuario = """INSERT INTO Usuario (id_persona, Telefono, Membresia, Contrasena) VALUES (:1, :2, :3, :4)"""
             cursor.execute(query_usuario, (id_persona_value, usuario.telefono, 
                                           usuario.membresia, usuario.contrasena))
             
