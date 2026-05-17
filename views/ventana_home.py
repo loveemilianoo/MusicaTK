@@ -31,7 +31,7 @@ class VentanaHome:
             return "Buenas noches"
     
     def _cargar_canciones_recientes(self):
-        canciones = CancionDAO.listar_todas_canciones()
+        canciones = CancionDAO.obtener_todas_canciones()
         
         if not canciones:
             tk.Label(self.parent, text="No hay canciones disponibles",
@@ -40,11 +40,11 @@ class VentanaHome:
         
         for cancion in canciones[:10]:
             cancion_data = {
-                'id': cancion[0],
-                'nombre': cancion[1],
-                'artista': cancion[2],
-                'album': cancion[3],
-                'duracion': cancion[4]
+                'id': cancion.id_cancion,
+                'nombre': cancion.nombre,
+                'artista': cancion.id_artista,
+                'album': cancion.id_album,
+                'duracion': cancion.duracion
             }
             
             Componentes.cancion_row(

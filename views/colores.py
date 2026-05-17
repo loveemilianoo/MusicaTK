@@ -1,15 +1,15 @@
 # Paleta de colores para toda la aplicación
-BG_DARK    = "#0A0A0F"
-BG_CARD    = "#13131A"
-BG_SIDEBAR = "#0F0F16"
-BG_HOVER   = "#1E1E2A"
-ACCENT     = "#7C5CBF"       # púrpura profundo
-ACCENT2    = "#C084FC"       # lila brillante
-GREEN      = "#4ADE80"       # verde play
-TEXT_PRI   = "#F0EEF8"
-TEXT_SEC   = "#8A849E"
-TEXT_MUT   = "#4A4560"
-BORDER     = "#1E1E2A"
+BG_DARK    = "#2A2520"       # negro con tonos café
+BG_CARD    = "#3D3A34"       # café oscuro
+BG_SIDEBAR = "#342F2A"       # café muy oscuro
+BG_HOVER   = "#4A4540"       # café claro (hover)
+ACCENT     = "#D4A574"       # beige - color principal
+ACCENT2    = "#E8C8A0"       # beige claro
+GREEN      = "#8B9A6E"       # verde olivo
+TEXT_PRI   = "#F5F0EA"       # cream/blanco cálido
+TEXT_SEC   = "#A89485"       # gris café
+TEXT_MUT   = "#5D5550"       # gris oscuro
+BORDER     = "#4A4540"       # café
 
 # Fuentes
 FONT_TITLE  = ("Helvetica", 24, "bold")

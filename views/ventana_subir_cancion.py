@@ -76,8 +76,7 @@ class VentanaSubirCancion:
         campos = [
             ("titulo", "Título de la canción *", "Mi Canción"),
             ("artista", "Artista *", "Mi Nombre"),
-            ("album", "Álbum (opcional)", "Mi Álbum"),
-            ("año", "Año", "2026"),
+            ("fechaLanzamiento", "Fecha de lanzamiento *", "2026-12-01"),
             ("genero", "Género", "Electrónica"),
         ]
         
@@ -129,6 +128,7 @@ class VentanaSubirCancion:
         # Validar campos obligatorios
         titulo = self.entries["titulo"].get()
         duracion_str = self.entries["duracion"].get()
+        fechaLanzamiento = self.entries["fechaLanzamiento"].get().strip()
         
         if not titulo or titulo == "Mi Canción":
             messagebox.showerror("Error", "Debes ingresar un título")
@@ -140,23 +140,41 @@ class VentanaSubirCancion:
             messagebox.showerror("Error", "La duración debe ser un número")
             return
         
-        # Crear objeto Cancion
-        cancion = Cancion(
-            nombre=titulo,
-            duracion=duracion,
-            id_artista=self.usuario_actual.id_persona,
-            id_album=None,  # Por ahora sin álbum
-            notrack=1
-        )
+        if not fechaLanzamiento or not self._es_fecha_valida(fechaLanzamiento):
+            messagebox.showerror("Error", "La fecha de lanzamiento debe ser válida (YYYY-MM-DD)")
+            return
         
-        # Intentar guardar
-        resultado = CancionDAO.crear_cancion(cancion)
-        
-        if resultado:
-            messagebox.showinfo("Éxito", f"¡Canción publicada correctamente!\nID: {resultado}")
-            self.ventana.destroy()
-            # Recargar el portal
-            if hasattr(self.app, 'mostrar_portal_artista'):
-                self.app.mostrar_portal_artista()
-        else:
-            messagebox.showerror("Error", "No se pudo guardar la canción")
+        try:
+            from datetime import datetime
+            fecha_obj = datetime.strptime(fechaLanzamiento, "%Y-%m-%d").date()
+            
+            # Crear objeto Cancion
+            cancion = Cancion(
+                nombre=titulo,
+                duracion=duracion,
+                id_artista=self.usuario_actual.id_persona,
+                fecha_lanzamiento=fecha_obj
+            )
+            
+            # Intentar guardar
+            resultado = CancionDAO.crear_cancion(cancion)
+            
+            if resultado:
+                messagebox.showinfo("Éxito", f"¡Canción publicada correctamente!\nID: {resultado}", parent=self.ventana)
+                self.ventana.destroy()
+                # Recargar el portal
+                if hasattr(self.app, 'mostrar_portal_artista'):
+                    self.app.mostrar_portal_artista()
+            else:
+                messagebox.showerror("Error", "No se pudo guardar la canción", parent=self.ventana)
+        except Exception as e:
+            messagebox.showerror("Error", f"Error al publicar: {e}", parent=self.ventana)
+    
+    def _es_fecha_valida(self, fecha_str):
+        """Valida si la fecha está en formato YYYY-MM-DD."""
+        from datetime import datetime
+        try:
+            datetime.strptime(fecha_str, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False

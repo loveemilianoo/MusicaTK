@@ -1,42 +1,22 @@
-from database.Conexion import ConexionDB
 from datetime import date
 
 class Album:
-    def __init__(self, id_album=None, nombre=None, id_persona=None, fecha_lanzamiento=None):
-        self._id_album = id_album
-        self._nombre = nombre
-        self._id_persona = id_persona
-        self._fecha_lanzamiento = fecha_lanzamiento or date.today()
-        self.db = ConexionDB()
+    def __init__(self, id_album=None, nombre=None, id_persona=None, 
+                 fecha_lanzamiento=None):
+        self.id_album = id_album
+        self.nombre = nombre
+        self.id_persona = id_persona
+        self.fecha_lanzamiento = fecha_lanzamiento or date.today()
+        self.nombre_artista = None  # Para JOIN con Persona
     
-    @property
-    def id_album(self):
-        return self._id_album
+    def __str__(self):
+        return f"{self.nombre} (ID: {self.id_album})"
     
-    @id_album.setter
-    def id_album(self, valor):
-        self._id_album = valor
-    
-    @property
-    def nombre(self):
-        return self._nombre
-    
-    @nombre.setter
-    def nombre(self, valor):
-        self._nombre = valor
-    
-    @property
-    def id_persona(self):
-        return self._id_persona
-    
-    @id_persona.setter
-    def id_persona(self, valor):
-        self._id_persona = valor
-    
-    @property
-    def fecha_lanzamiento(self):
-        return self._fecha_lanzamiento
-    
-    @fecha_lanzamiento.setter
-    def fecha_lanzamiento(self, valor):
-        self._fecha_lanzamiento = valor
+    def to_dict(self):
+        return {
+            'id_album': self.id_album,
+            'nombre': self.nombre,
+            'id_persona': self.id_persona,
+            'fecha_lanzamiento': self.fecha_lanzamiento,
+            'nombre_artista': self.nombre_artista
+        }

@@ -31,15 +31,15 @@ class VentanaPlaylistDetalle:
         back.pack(side="left")
         
         # Título
-        tk.Label(header, text=self.playlist_info['nombre'], font=FONT_TITLE,
+        tk.Label(header, text=self.playlist_info.nombre, font=FONT_TITLE,
                 fg=TEXT_PRI, bg=BG_DARK, anchor="w").pack(side="left", padx=20)
         
         # Info de la playlist
         info_frame = tk.Frame(self.parent, bg=BG_CARD, padx=20, pady=15)
         info_frame.pack(fill="x", pady=(0, 20))
         
-        total = self.playlist_info.get('total_canciones', 0)
-        duracion = self.playlist_info.get('duracion_total', 0)
+        total = 0  # Se calcularía en una consulta separada
+        duracion = 0  # Se calcularía en una consulta separada
         minutos = duracion // 60 if isinstance(duracion, (int, float)) else 0
         
         tk.Label(info_frame, text=f"📊 {total} canciones", font=FONT_BODY,

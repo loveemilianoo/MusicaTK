@@ -51,7 +51,7 @@ class VentanaPortalArtista:
         btn_album.pack(side="left", padx=(0, 10))
         
         btn_perfil = Componentes.btn(actions, "✎ Editar perfil", 
-                                     lambda: messagebox.showinfo("Info", "Función en desarrollo"),
+                                     lambda: self._abrir_editar_perfil(),
                                      bg=BG_CARD, fg=TEXT_SEC)
         btn_perfil.pack(side="left")
         
@@ -188,4 +188,18 @@ class VentanaPortalArtista:
     
     def _abrir_crear_album(self):
         """Abrir ventana de crear álbum"""
-        messagebox.showinfo("Info", "Función 'Crear álbum' en desarrollo")
+        from views.ventana_crear_album import VentanaCrearAlbum
+
+        def on_creado():
+            self.mostrar(self.app.content)
+
+        VentanaCrearAlbum(self.usuario_actual, self.app, on_creado)
+
+    def _abrir_editar_perfil(self):
+        """Abrir ventana de editar perfil del artista"""
+        from views.ventana_editar_perfil_artista import VentanaEditarPerfilArtista
+
+        def on_guardado():
+            self.mostrar(self.app.content)
+
+        VentanaEditarPerfilArtista(self.usuario_actual, self.app, on_guardado)

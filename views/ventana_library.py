@@ -119,7 +119,7 @@ class VentanaLibrary:
                     font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
     
     def _mostrar_artistas(self):
-        artistas = ArtistaDAO.listar_artistas()
+        artistas = ArtistaDAO.listar_todos_artistas()
         
         if not artistas:
             tk.Label(self.content_frame, text="No hay artistas disponibles",
