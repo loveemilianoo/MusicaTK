@@ -17,8 +17,15 @@ class GeneroDAO(BaseController):
             
             id_genero = cursor.var(oracledb.NUMBER)
             cursor.execute(query, (genero.nombre, id_genero))
+            
+            # Extraer correctamente el valor del array
+            id_value = id_genero.getvalue()
+            if isinstance(id_value, (list, tuple)):
+                id_value = id_value[0]
+            
+            print(f"✓ Género '{genero.nombre}' creado con ID: {id_value}")
             conexion.commit()
-            return id_genero.getvalue()
+            return id_value
         except Exception as e:
             if conexion:
                 conexion.rollback()

@@ -22,13 +22,19 @@ class ArtistaDAO(BaseController):
                                           artista.correo, artista.sexo, 
                                           artista.edad, id_persona))
             
+            # Extraer correctamente el valor del array
             id_persona_value = id_persona.getvalue()
+            if isinstance(id_persona_value, (list, tuple)):
+                id_persona_value = id_persona_value[0]
+            
+            print(f"✓ Persona insertada con ID: {id_persona_value}")
             
             # Luego insertar en Artista
             query_artista = """INSERT INTO Artista (id_persona, Banda, Disquera) 
                               VALUES (:1, :2, :3)"""
             cursor.execute(query_artista, (id_persona_value, artista.banda, artista.disquera))
             
+            print(f"✓ Artista '{artista.nombre}' creado correctamente")
             conexion.commit()
             return id_persona_value
         except Exception as e:

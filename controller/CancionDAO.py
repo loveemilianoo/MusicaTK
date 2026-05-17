@@ -20,8 +20,15 @@ class CancionDAO(BaseController):
             cursor.execute(query, (cancion.nombre, cancion.duracion, 
                                    cancion.id_artista, cancion.id_album,
                                    cancion.notrack, id_cancion))
+            
+            # Extraer correctamente el valor del array
+            id_value = id_cancion.getvalue()
+            if isinstance(id_value, (list, tuple)):
+                id_value = id_value[0]
+            
+            print(f"✓ Canción '{cancion.nombre}' creada con ID: {id_value}")
             conexion.commit()
-            return id_cancion.getvalue()
+            return id_value
         except Exception as e:
             if conexion:
                 conexion.rollback()

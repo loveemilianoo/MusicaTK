@@ -17,23 +17,26 @@ class UsuarioDAO(BaseController):
             query_persona = """INSERT INTO Persona (Nombre, Apellido, Correo, Sexo, Edad) VALUES (:1, :2, :3, :4, :5) RETURNING id_persona INTO :6"""
             
             id_persona = cursor.var(oracledb.NUMBER)
-            cursor.execute(query_persona, (usuario.nombre, usuario.apellido, 
-                                          usuario.correo, usuario.sexo, 
-                                          usuario.edad, id_persona))
+            cursor.execute(query_persona, (usuario.nombre, usuario.apellido, usuario.correo, usuario.sexo, usuario.edad, id_persona))
             
+            # Extraer el valor del array correctamente
             id_persona_value = id_persona.getvalue()
+            if isinstance(id_persona_value, (list, tuple)):
+                id_persona_value = id_persona_value[0]
             
             # Luego insertar en Usuario
             query_usuario = """INSERT INTO Usuario (id_persona, Telefono, Membresia, Contrasena) VALUES (:1, :2, :3, :4)"""
-            cursor.execute(query_usuario, (id_persona_value, usuario.telefono, 
-                                          usuario.membresia, usuario.contrasena))
+            cursor.execute(query_usuario, (id_persona_value, usuario.telefono, usuario.membresia, usuario.contrasena))
             
             conexion.commit()
+            print(f"✓ Datos guardados en la base de datos")
             return id_persona_value
         except Exception as e:
             if conexion:
                 conexion.rollback()
-            print(f"Error al crear usuario: {e}")
+            print(f"✗ Error al crear usuario: {e}")
+            import traceback
+            traceback.print_exc()
             return None
         finally:
             BaseController.cerrar_recursos(cursor, conexion)

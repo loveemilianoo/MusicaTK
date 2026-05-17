@@ -4,6 +4,7 @@ from views.componentes import Componentes
 from views.ventana_home import VentanaHome
 from views.ventana_search import VentanaSearch
 from views.ventana_library import VentanaLibrary
+from views.ventana_portal_artista import VentanaPortalArtista
 from controller.PlaylistDAO import PlaylistDAO
 
 class VentanaPrincipal:
@@ -60,6 +61,7 @@ class VentanaPrincipal:
             ("🏠  Inicio", self.mostrar_home),
             ("🔍  Buscar", self.mostrar_search),
             ("📚  Biblioteca", self.mostrar_library),
+            ("🎤  Mi Portal", self.mostrar_portal_artista),
         ]
         
         for label, cmd in nav_items:
@@ -83,7 +85,10 @@ class VentanaPrincipal:
         self.playlists_frame = tk.Frame(sidebar, bg=BG_SIDEBAR)
         self.playlists_frame.pack(fill="both", expand=True)
         
-        self._cargar_playlists_sidebar()
+        try:
+            self._cargar_playlists_sidebar()
+        except Exception as e:
+            print(f"Error al inicializar playlists: {e}")
         
         return sidebar
     
@@ -92,22 +97,25 @@ class VentanaPrincipal:
         for w in self.playlists_frame.winfo_children():
             w.destroy()
         
-        playlists = PlaylistDAO.obtener_playlists_por_usuario(self.usuario_actual.id_persona)
-        
-        for p in playlists:
-            playlist_id = p[0]
-            nombre = p[1]
+        try:
+            playlists = PlaylistDAO.obtener_playlists_por_usuario(self.usuario_actual.id_persona)
             
-            f = tk.Frame(self.playlists_frame, bg=BG_SIDEBAR, cursor="hand2")
-            f.pack(fill="x")
-            lbl = tk.Label(f, text=f"♪ {nombre}", font=FONT_SMALL, fg=TEXT_SEC,
-                          bg=BG_SIDEBAR, anchor="w", padx=20, pady=6)
-            lbl.pack(fill="x")
-            
-            for w in (f, lbl):
-                w.bind("<Button-1>", lambda e, pid=playlist_id: self.mostrar_playlist(pid))
-                w.bind("<Enter>", lambda e, f=f, l=lbl: f.configure(bg=BG_HOVER) or l.configure(bg=BG_HOVER))
-                w.bind("<Leave>", lambda e, f=f, l=lbl: f.configure(bg=BG_SIDEBAR) or l.configure(bg=BG_SIDEBAR))
+            for p in playlists:
+                playlist_id = p.id_playlist
+                nombre = p.nombre
+                
+                f = tk.Frame(self.playlists_frame, bg=BG_SIDEBAR, cursor="hand2")
+                f.pack(fill="x")
+                lbl = tk.Label(f, text=f"♪ {nombre}", font=FONT_SMALL, fg=TEXT_SEC,
+                              bg=BG_SIDEBAR, anchor="w", padx=20, pady=6)
+                lbl.pack(fill="x")
+                
+                for w in (f, lbl):
+                    w.bind("<Button-1>", lambda e, pid=playlist_id: self.mostrar_playlist(pid))
+                    w.bind("<Enter>", lambda e, f=f, l=lbl: f.configure(bg=BG_HOVER) or l.configure(bg=BG_HOVER))
+                    w.bind("<Leave>", lambda e, f=f, l=lbl: f.configure(bg=BG_SIDEBAR) or l.configure(bg=BG_SIDEBAR))
+        except Exception as e:
+            print(f"Error al cargar playlists: {e}")
     
     def mostrar_home(self):
         self._limpiar_content()
@@ -126,6 +134,12 @@ class VentanaPrincipal:
         library = VentanaLibrary(self.content, self.usuario_actual, self, self._cargar_playlists_sidebar)
         library.mostrar()
         self.current_screen = "library"
+    
+    def mostrar_portal_artista(self):
+        self._limpiar_content()
+        portal = VentanaPortalArtista(self.usuario_actual, self)
+        portal.mostrar(self.content)
+        self.current_screen = "portal"
     
     def mostrar_playlist(self, playlist_id):
         self._limpiar_content()

@@ -20,12 +20,21 @@ class PlaylistDAO(BaseController):
             id_playlist = cursor.var(oracledb.NUMBER)
             cursor.execute(query, (playlist.nombre, playlist.id_persona, 
                                    playlist.fecha_creacion, id_playlist))
+            
+            # Extraer correctamente el valor del array
+            id_value = id_playlist.getvalue()
+            if isinstance(id_value, (list, tuple)):
+                id_value = id_value[0]
+            
+            print(f"✓ Playlist '{playlist.nombre}' creada con ID: {id_value}")
             conexion.commit()
-            return id_playlist.getvalue()
+            return id_value
         except Exception as e:
             if conexion:
                 conexion.rollback()
-            print(f"Error al crear playlist: {e}")
+            print(f"✗ Error al crear playlist: {e}")
+            import traceback
+            traceback.print_exc()
             return None
         finally:
             BaseController.cerrar_recursos(cursor, conexion)

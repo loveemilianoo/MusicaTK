@@ -21,8 +21,15 @@ class PersonaController(BaseController):
             cursor.execute(query, (persona.nombre, persona.apellido, 
                                    persona.correo, persona.sexo, 
                                    persona.edad, id_persona))
+            
+            # Extraer correctamente el valor del array
+            id_value = id_persona.getvalue()
+            if isinstance(id_value, (list, tuple)):
+                id_value = id_value[0]
+            
+            print(f"✓ Persona '{persona.nombre}' creada con ID: {id_value}")
             conexion.commit()
-            return id_persona.getvalue()
+            return id_value
         except Exception as e:
             if conexion:
                 conexion.rollback()

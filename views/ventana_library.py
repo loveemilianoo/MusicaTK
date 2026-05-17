@@ -61,21 +61,40 @@ class VentanaLibrary:
             self._mostrar_artistas()
     
     def _mostrar_playlists(self):
-        playlists = PlaylistDAO.obtener_playlists_por_usuario(self.usuario_actual.id_persona)
+        # Mostrar TODAS las playlists que existan
+        playlists = PlaylistDAO.obtener_playlists_con_detalle()
         
         if not playlists:
-            tk.Label(self.content_frame, text="No tienes playlists. ¡Crea una!",
+            tk.Label(self.content_frame, text="No hay playlists disponibles. ¡Crea una!",
                     font=FONT_BODY, fg=TEXT_MUT, bg=BG_DARK).pack(pady=20)
             return
         
         for p in playlists:
-            playlist_data = PlaylistDAO.obtener_playlist_por_id(p[0])
-            if playlist_data:
-                Componentes.playlist_row(
-                    self.content_frame,
-                    playlist_data,
-                    on_click=lambda pd: self.app.mostrar_playlist(pd['id'])
-                )
+            # p es una tupla: (id, nombre, fecha_creacion, usuario, total_canciones)
+            row = tk.Frame(self.content_frame, bg=BG_DARK, cursor="hand2")
+            row.pack(fill="x", pady=8)
+            row.bind("<Button-1>", lambda e, pid=p[0]: self.app.mostrar_playlist(pid))
+            
+            # Canvas con icono
+            canvas = tk.Canvas(row, width=50, height=50, bg="#1A1A2E", highlightthickness=0)
+            canvas.pack(side="left", padx=(0, 12), pady=4)
+            canvas.create_rectangle(5, 5, 45, 45, fill=ACCENT, outline="")
+            canvas.create_text(25, 25, text="♫", font=("Helvetica", 20), fill="white")
+            canvas.bind("<Button-1>", lambda e, pid=p[0]: self.app.mostrar_playlist(pid))
+            
+            # Información
+            info = tk.Frame(row, bg=BG_DARK)
+            info.pack(side="left", fill="both", expand=True)
+            info.bind("<Button-1>", lambda e, pid=p[0]: self.app.mostrar_playlist(pid))
+            
+            nombre_label = tk.Label(info, text=p[1], font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK)
+            nombre_label.pack(anchor="w")
+            nombre_label.bind("<Button-1>", lambda e, pid=p[0]: self.app.mostrar_playlist(pid))
+            
+            detalles = f"{p[3]} • {p[4]} canciones"
+            detalles_label = tk.Label(info, text=detalles, font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK)
+            detalles_label.pack(anchor="w")
+            detalles_label.bind("<Button-1>", lambda e, pid=p[0]: self.app.mostrar_playlist(pid))
     
     def _mostrar_albumes(self):
         albumes = AlbumDAO.listar_todos_albumes()
