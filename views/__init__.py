@@ -12,6 +12,7 @@ from .ventana_seleccionar_cancion import VentanaSeleccionarCancion
 from .ventana_agregar_a_playlist import VentanaAgregarAPlaylist
 from .ventana_crear_album import VentanaCrearAlbum
 from .ventana_editar_perfil_artista import VentanaEditarPerfilArtista
+from .ventana_registro_artista import VentanaRegistroArtista    
 
 __all__ = [
     'VentanaLogin',
@@ -27,4 +28,5 @@ __all__ = [
     'VentanaCrearAlbum',
     'VentanaEditarPerfilArtista',
     'Componentes'
+    'VentanaRegistroArtista'
 ]

@@ -3,6 +3,7 @@ from tkinter import messagebox
 from views.colores import *
 from views.componentes import Componentes
 from controller.UsuarioDAO import UsuarioDAO
+from controller.ArtistaDAO import ArtistaDAO
 
 class VentanaLogin:
     def __init__(self):
@@ -65,36 +66,48 @@ class VentanaLogin:
         btn_registro = Componentes.btn(frame, "CREAR CUENTA", self._abrir_registro,
                                       bg=BG_CARD, fg=TEXT_SEC, font=FONT_SMALL)
         btn_registro.pack(fill="x", pady=6)
+
+        # Botón registro artista
+        btn_artista = Componentes.btn(frame, "SOY ARTISTA", self._abrir_registro,
+                          bg=BG_DARK, fg=ACCENT,
+                          font=("Helvetica", 10, "bold"))
+        btn_artista.pack(fill="x", pady=(0, 6))
     
     def _abrir_registro(self):
-        from views.ventana_registro import VentanaRegistro
+        from views.ventana_registro_artista import VentanaRegistroArtista
         self.ventana.destroy()
-        app = VentanaRegistro()
+        app = VentanaRegistroArtista()
         app.ejecutar()
         
     
     def iniciar_sesion(self):
         correo = self.entry_correo.get()
         password = self.entry_password.get()
-        
+
         if not correo or correo == "Correo electrónico":
             messagebox.showerror("Error", "Ingresa tu correo electrónico")
             return
-        
+
         if not password or password == "Contraseña":
             messagebox.showerror("Error", "Ingresa tu contraseña")
             return
-        
+
         usuario = UsuarioDAO.verificar_credenciales(correo, password)
-        
+
         if usuario:
-            messagebox.showinfo("Éxito", f"¡Bienvenido {usuario.nombre}!")
+            artista = ArtistaDAO.obtener_artista_por_id(usuario.id_persona)
+            sesion = artista if artista else usuario
+        else:
+            sesion = ArtistaDAO.verificar_credenciales_artista(correo, password)
+
+        if sesion:
+            messagebox.showinfo("Éxito", f"¡Bienvenido {sesion.nombre}!")
             self.ventana.destroy()
             from views.ventana_principal import VentanaPrincipal
-            app = VentanaPrincipal(usuario)
+            app = VentanaPrincipal(sesion)
             app.ejecutar()
         else:
             messagebox.showerror("Error", "Correo o contraseña incorrectos")
-    
+
     def ejecutar(self):
         self.ventana.mainloop()

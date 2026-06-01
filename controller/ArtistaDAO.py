@@ -30,9 +30,8 @@ class ArtistaDAO(BaseController):
             print(f"✓ Persona insertada con ID: {id_persona_value}")
             
             # Luego insertar en Artista
-            query_artista = """INSERT INTO Artista (id_persona, Banda, Disquera) 
-                              VALUES (:1, :2, :3)"""
-            cursor.execute(query_artista, (id_persona_value, artista.banda, artista.disquera))
+            query_artista = """INSERT INTO Artista (id_persona, Banda, Disquera, Contrasena) VALUES (:1, :2, :3, :4)"""
+            cursor.execute(query_artista, (id_persona_value, artista.banda, artista.disquera, artista.contrasena))
             
             print(f"✓ Artista '{artista.nombre}' creado correctamente")
             conexion.commit()
@@ -55,7 +54,7 @@ class ArtistaDAO(BaseController):
             cursor = conexion.cursor()
             
             query = """SELECT p.id_persona, p.Nombre, p.Apellido, p.Correo, p.Sexo, p.Edad,
-                              a.Banda, a.Disquera
+                              a.Banda, a.Disquera, a.Contrasena
                        FROM Persona p
                        JOIN Artista a ON p.id_persona = a.id_persona
                        WHERE p.id_persona = :1"""
@@ -71,7 +70,8 @@ class ArtistaDAO(BaseController):
                     sexo=result[4],
                     edad=result[5],
                     banda=result[6],
-                    disquera=result[7]
+                    disquera=result[7],
+                    contrasena=result[8]
                 )
             return None
         except Exception as e:
@@ -90,7 +90,7 @@ class ArtistaDAO(BaseController):
             cursor = conexion.cursor()
             
             query = """SELECT p.id_persona, p.Nombre, p.Apellido, p.Correo, p.Sexo, p.Edad,
-                              a.Banda, a.Disquera
+                              a.Banda, a.Disquera, a.Contrasena
                        FROM Persona p
                        JOIN Artista a ON p.id_persona = a.id_persona
                        WHERE LOWER(p.Nombre) = :1"""
@@ -106,7 +106,8 @@ class ArtistaDAO(BaseController):
                     sexo=result[4],
                     edad=result[5],
                     banda=result[6],
-                    disquera=result[7]
+                    disquera=result[7],
+                    contrasena=result[8]
                 )
             return None
         except Exception as e:
@@ -125,7 +126,7 @@ class ArtistaDAO(BaseController):
             cursor = conexion.cursor()
             
             query = """SELECT p.id_persona, p.Nombre, p.Apellido, p.Correo, p.Sexo, p.Edad,
-                              a.Banda, a.Disquera
+                              a.Banda, a.Disquera, a.Contrasena
                        FROM Persona p
                        JOIN Artista a ON p.id_persona = a.id_persona
                        ORDER BY p.Nombre"""
@@ -142,7 +143,8 @@ class ArtistaDAO(BaseController):
                     sexo=row[4],
                     edad=row[5],
                     banda=row[6],
-                    disquera=row[7]
+                    disquera=row[7],
+                    contrasena=row[8]
                 )
                 artistas.append(artista)
             return artistas
@@ -229,25 +231,23 @@ class ArtistaDAO(BaseController):
             BaseController.cerrar_recursos(cursor, conexion)
     
     @staticmethod
-    def actualizar_artista(artista):
-        """Actualizar artista existente"""
+    def actualizar_artista(id_persona, datos):
+        """Actualizar artista existente usando un diccionario de campos"""
         conexion = None
         cursor = None
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            # Actualizar Persona
-            query_persona = """UPDATE Persona SET Nombre=:1, Apellido=:2, Correo=:3, 
-                              Sexo=:4, Edad=:5 WHERE id_persona=:6"""
-            cursor.execute(query_persona, (artista.nombre, artista.apellido,
-                                          artista.correo, artista.sexo,
-                                          artista.edad, artista.id_persona))
+            # Actualizar Persona (nombre y apellido)
+            query_persona = """UPDATE Persona SET Nombre=:1, Apellido=:2 
+                              WHERE id_persona=:3"""
+            cursor.execute(query_persona, (datos.get("nombre"), datos.get("apellido"), id_persona))
             
             # Actualizar Artista
             query_artista = """UPDATE Artista SET Banda=:1, Disquera=:2 
                               WHERE id_persona=:3"""
-            cursor.execute(query_artista, (artista.banda, artista.disquera, artista.id_persona))
+            cursor.execute(query_artista, (datos.get("es_banda"), datos.get("disquera"), id_persona))
             
             conexion.commit()
             return True
@@ -321,5 +321,40 @@ class ArtistaDAO(BaseController):
         except Exception as e:
             print(f"Error al listar artistas por disquera: {e}")
             return []
+        finally:
+            BaseController.cerrar_recursos(cursor, conexion)
+
+    @staticmethod
+    def verificar_credenciales_artista(correo, contrasena):
+        """Login exclusivo para artistas"""
+        conexion = None
+        cursor = None
+        try:
+            conexion = BaseController.obtener_conexion()
+            cursor = conexion.cursor()
+            query = """SELECT p.id_persona, p.Nombre, p.Apellido, p.Correo, 
+                          p.Sexo, p.Edad, a.Banda, a.Disquera
+                   FROM Persona p
+                   JOIN Artista a ON p.id_persona = a.id_persona
+                   WHERE LOWER(p.Correo) = :1 AND a.Contrasena = :2"""
+            
+            cursor.execute(query, (correo.lower(), contrasena))
+            result = cursor.fetchone()
+            
+            if result:
+                return Artista(
+                    id_persona=result[0],
+                    nombre=result[1],
+                    apellido=result[2],
+                    correo=result[3],
+                    sexo=result[4],
+                    edad=result[5],
+                    banda=result[6],
+                    disquera=result[7]
+                )
+            return None
+        except Exception as e:
+            print(f"Error al verificar credenciales de artista: {e}")
+            return None
         finally:
             BaseController.cerrar_recursos(cursor, conexion)

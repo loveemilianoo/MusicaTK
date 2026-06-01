@@ -25,15 +25,17 @@ class VentanaPortalArtista:
         header.pack(fill="x", pady=(0, 20))
         
         # Obtener datos del artista
-        artista = ArtistaDAO.obtener_artista_por_id(self.usuario_actual.id_persona)
-        nombre_artista = f"{self.usuario_actual.nombre}" if artista else self.usuario_actual.nombre
-        
+        nombre_artista = self.usuario_actual.nombre
+        info_artista = f"{'Banda' if self.usuario_actual.banda else 'Solista'}"
+        if self.usuario_actual.disquera:
+            info_artista += f" • {self.usuario_actual.disquera}"
+
         # Banner decorativo
         banner = tk.Canvas(header, width=700, height=100, bg="#1A0A2E", highlightthickness=0)
         banner.pack(fill="x")
         banner.create_text(20, 35, text=f"🎤 {nombre_artista}", anchor="w",
                           font=("Helvetica", 20, "bold"), fill=TEXT_PRI)
-        banner.create_text(20, 65, text="Portal de Artista • Gestiona tus canciones y álbumes",
+        banner.create_text(20, 65, text=f"Portal de Artista • {info_artista}",
                           anchor="w", font=FONT_SMALL, fill=TEXT_SEC)
         
         # Botones de acción rápida

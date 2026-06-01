@@ -1,4 +1,5 @@
 import tkinter as tk
+from controller.ArtistaDAO import ArtistaDAO
 from views.colores import *
 from views.componentes import Componentes
 from views.ventana_home import VentanaHome
@@ -57,14 +58,16 @@ class VentanaPrincipal:
                 fg=ACCENT2, bg=BG_SIDEBAR).pack(anchor="w")
         
         # Navegación
-        nav_items = [
+        nav_items_base = [
             ("🏠  Inicio", self.mostrar_home),
             ("🔍  Buscar", self.mostrar_search),
             ("📚  Biblioteca", self.mostrar_library),
-            ("🎤  Mi Portal", self.mostrar_portal_artista),
         ]
-        
-        for label, cmd in nav_items:
+
+        if isinstance(self.usuario_actual, ArtistaDAO):
+            nav_items_base.append(("🎤  Portal de artista", self.mostrar_portal_artista))
+
+        for label, cmd in nav_items_base:
             f = tk.Frame(sidebar, bg=BG_SIDEBAR, cursor="hand2")
             f.pack(fill="x")
             lbl = tk.Label(f, text=label, font=("Helvetica", 10, "bold"),
