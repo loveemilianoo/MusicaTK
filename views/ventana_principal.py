@@ -1,5 +1,6 @@
 import tkinter as tk
 from controller.ArtistaDAO import ArtistaDAO
+from models.Artista import Artista
 from views.colores import *
 from views.componentes import Componentes
 from views.ventana_home import VentanaHome
@@ -64,7 +65,7 @@ class VentanaPrincipal:
             ("📚  Biblioteca", self.mostrar_library),
         ]
 
-        if isinstance(self.usuario_actual, ArtistaDAO):
+        if isinstance(self.usuario_actual, Artista):
             nav_items_base.append(("🎤  Portal de artista", self.mostrar_portal_artista))
 
         for label, cmd in nav_items_base:
