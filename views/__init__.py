@@ -27,6 +27,6 @@ __all__ = [
     'VentanaAgregarAPlaylist',
     'VentanaCrearAlbum',
     'VentanaEditarPerfilArtista',
-    'Componentes'
+    'Componentes',
     'VentanaRegistroArtista'
 ]

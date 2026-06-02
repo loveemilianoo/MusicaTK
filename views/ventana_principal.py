@@ -19,12 +19,14 @@ class VentanaPrincipal:
         self.ventana.configure(bg=BG_DARK)
 
         # Estado de reproducción
-        self.current_screen  = None
-        self.now_playing     = tk.StringVar(value="Selecciona una canción")
-        self.progress_val    = tk.DoubleVar(value=0)
-        self.is_playing      = tk.BooleanVar(value=False)
-        self.current_cancion = None
-        self.timer_id        = None  
+        self.current_screen   = None
+        self.now_playing      = tk.StringVar(value="Selecciona una canción")
+        self.progress_val     = tk.DoubleVar(value=0)
+        self.is_playing       = tk.BooleanVar(value=False)
+        self.current_cancion  = None
+        self.timer_id         = None
+        self._duracion_actual = 0
+        self._siguiente_callback = None
 
         self.player = MusicPlayer()  
 
@@ -33,6 +35,10 @@ class VentanaPrincipal:
     def setup_ui(self):
         outer = tk.Frame(self.ventana, bg=BG_DARK)
         outer.pack(fill="both", expand=True)
+
+        # El player va PRIMERO: pack side="bottom" debe reservar espacio
+        # antes de que sidebar y content tomen todo con side="left"
+        self._crear_player(outer)
 
         self.sidebar = self._crear_sidebar(outer)
 
@@ -43,7 +49,6 @@ class VentanaPrincipal:
         self.content.pack(fill="both", expand=True, padx=28, pady=20)
 
         self.mostrar_home()
-        self._crear_player(outer)
 
     def _crear_sidebar(self, parent):
         sidebar = tk.Frame(parent, bg=BG_SIDEBAR, width=210)
@@ -203,15 +208,13 @@ class VentanaPrincipal:
                                            fg=TEXT_MUT, bg=BG_CARD, width=4)
         self.lbl_tiempo_actual.pack(side="left")
 
-        self.progress_bar = tk.Scale(
-            prog_row, from_=0, to=100, orient="horizontal",
-            variable=self.progress_val,
-            bg=BG_CARD, fg=TEXT_SEC, troughcolor=BG_HOVER,
-            activebackground=ACCENT, highlightthickness=0,
-            length=300, showvalue=False,
-            command=self._al_mover_barra
+        self.prog_canvas = tk.Canvas(
+            prog_row, height=16, bg=BG_CARD,
+            highlightthickness=0, cursor="hand2"
         )
-        self.progress_bar.pack(side="left", padx=6)
+        self.prog_canvas.pack(side="left", fill="x", expand=True, padx=6)
+        self.prog_canvas.bind("<Button-1>",   self._click_progreso)
+        self.prog_canvas.bind("<B1-Motion>",  self._click_progreso)
 
         self.time_label = tk.Label(prog_row, text="0:00", font=FONT_TINY,
                                     fg=TEXT_MUT, bg=BG_CARD, width=4)
@@ -251,49 +254,89 @@ class VentanaPrincipal:
             self.is_playing.set(True)
         self._actualizar_boton_play()
     
-    def _al_mover_barra(self, valor):
-        """Cuando el usuario arrastra la barra manualmente."""
-        # pygame no soporta seek nativo en MP3, se ignora por ahora
-        pass
-    
+    def _dibujar_progreso(self, pos=None):
+        c = self.prog_canvas
+        c.update_idletasks()
+        w = c.winfo_width()
+        if w <= 1:
+            return
+        c.delete("all")
+        if pos is None:
+            pos = self.progress_val.get()
+        total = self._duracion_actual
+        ratio = (pos / total) if total > 0 else 0
+        cx = int(ratio * w)
+
+        # Track de fondo
+        c.create_rectangle(0, 6, w, 10, fill=BG_HOVER, outline="")
+        # Parte completada
+        if cx > 0:
+            c.create_rectangle(0, 6, cx, 10, fill=ACCENT, outline="")
+        # Bolita de posición
+        c.create_oval(cx - 6, 2, cx + 6, 14, fill=ACCENT2, outline="")
+
+    def _click_progreso(self, event):
+        if self._duracion_actual <= 0:
+            return
+        w = self.prog_canvas.winfo_width()
+        ratio = max(0.0, min(1.0, event.x / w))
+        pos = ratio * self._duracion_actual
+        self.progress_val.set(pos)
+        m, s = divmod(int(pos), 60)
+        self.lbl_tiempo_actual.config(text=f"{m}:{s:02d}")
+        self._dibujar_progreso(pos)
+        self.player.seek(pos)
+
     def _iniciar_loop_progreso(self):
         if self.timer_id:
             self.ventana.after_cancel(self.timer_id)
-    
+
         def tick():
             if self.player.esta_reproduciendo():
                 pos = self.player.get_posicion_segundos()
                 self.progress_val.set(pos)
-                # Actualizar label de tiempo actual
-                m = int(pos // 60)
-                s = int(pos % 60)
+                m, s = divmod(int(pos), 60)
                 self.lbl_tiempo_actual.config(text=f"{m}:{s:02d}")
+                self._dibujar_progreso(pos)
+                self.timer_id = self.ventana.after(500, tick)
+            elif self.player.pausado:
+                # Mantener el loop sin actualizar posición
                 self.timer_id = self.ventana.after(500, tick)
             else:
+                # Canción terminó naturalmente
                 self.is_playing.set(False)
                 self._actualizar_boton_play()
                 self.progress_val.set(0)
                 self.lbl_tiempo_actual.config(text="0:00")
-    
-        self.timer_id = self.ventana.after(500, tick)
-    
-    def _cancion_anterior(self):
-        """Placeholder — se puede conectar a una cola después."""
-        self.player.detener()
-        self.is_playing.set(False)
-        self._actualizar_boton_play()
-        self.progress_val.set(0)
-        self.lbl_tiempo_actual.config(text="0:00")
-    
-    def _cancion_siguiente(self):
-        """Placeholder — se puede conectar a una cola después."""
-        self.player.detener()
-        self.is_playing.set(False)
-        self._actualizar_boton_play()
-        self.progress_val.set(0)
-        self.lbl_tiempo_actual.config(text="0:00")
+                self._dibujar_progreso(0)
+                if self._siguiente_callback:
+                    self.ventana.after(300, self._siguiente_callback)
 
-    def reproducir_cancion(self, cancion_data):  # ── CAMBIA
+        self.timer_id = self.ventana.after(500, tick)
+
+    def _resetear_player(self):
+        self.player.detener()
+        self.is_playing.set(False)
+        self._actualizar_boton_play()
+        self.progress_val.set(0)
+        self.lbl_tiempo_actual.config(text="0:00")
+        self._dibujar_progreso(0)
+
+    def set_siguiente_callback(self, fn):
+        self._siguiente_callback = fn
+
+    def _cancion_anterior(self):
+        self._resetear_player()
+
+    def _cancion_siguiente(self):
+        if self._siguiente_callback:
+            self._resetear_player()
+            self.ventana.after(100, self._siguiente_callback)
+        else:
+            self._resetear_player()
+
+    def reproducir_cancion(self, cancion_data):
+        self._siguiente_callback = None  # se reestablece desde ventana_playlist si aplica
         nombre   = cancion_data.get('nombre', '')
         artista  = cancion_data.get('artista', '')
         duracion = cancion_data.get('duracion', 0)
@@ -303,16 +346,20 @@ class VentanaPrincipal:
         self.current_cancion = cancion_data
 
         if isinstance(duracion, (int, float)) and duracion > 0:
-            self.progress_bar.config(to=duracion)
-            minutos  = int(duracion // 60)
-            segundos = int(duracion % 60)
-            self.time_label.config(text=f"{minutos}:{segundos:02d}")
+            self._duracion_actual = duracion
+            m, s = divmod(int(duracion), 60)
+            self.time_label.config(text=f"{m}:{s:02d}")
+        else:
+            self._duracion_actual = 0
+            self.time_label.config(text="0:00")
 
         if ruta:
             ok = self.player.reproducir(ruta)
             if ok:
+                self.progress_val.set(0)
                 self.is_playing.set(True)
                 self._actualizar_boton_play()
+                self.ventana.after(50, lambda: self._dibujar_progreso(0))
                 self._iniciar_loop_progreso()
             else:
                 from tkinter import messagebox

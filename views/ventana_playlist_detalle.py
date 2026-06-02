@@ -12,6 +12,8 @@ class VentanaPlaylistDetalle:
         self.app = app_principal
         self.playlist_id = playlist_id
         self.playlist_info = None
+        self._canciones_list = []
+        self._current_index = -1
     
     def mostrar(self):
         # Obtener información de la playlist
@@ -67,18 +69,18 @@ class VentanaPlaylistDetalle:
         self._cargar_canciones()
     
     def _cargar_canciones(self):
-        # Limpiar
         for w in self.canciones_frame.winfo_children():
             w.destroy()
-        
+
         canciones = PlaylistDAO.obtener_canciones_playlist(self.playlist_id)
-        
+        self._canciones_list = []
+
         if not canciones:
             tk.Label(self.canciones_frame, text="Esta playlist está vacía. Agrega canciones.",
                     font=FONT_BODY, fg=TEXT_MUT, bg=BG_DARK).pack(pady=30)
             return
-        
-        for cancion in canciones:
+
+        for i, cancion in enumerate(canciones):
             cancion_data = {
                 'id': cancion[0],
                 'nombre': cancion[1],
@@ -86,20 +88,35 @@ class VentanaPlaylistDetalle:
                 'artista': cancion[3],
                 'ruta_archivo': cancion[4]
             }
-            
+            self._canciones_list.append(cancion_data)
+
             row = Componentes.cancion_row(
                 self.canciones_frame,
                 cancion_data,
-                on_double_click=self._reproducir_cancion
+                on_double_click=lambda cd, idx=i: self._reproducir_por_indice(idx)
             )
-            
-            # Botón quitar en cada fila
+
             btn_quitar = tk.Button(row, text="✖", font=FONT_SMALL,
                                    bg=BG_DARK, fg=TEXT_MUT, bd=0,
                                    cursor="hand2", command=lambda cid=cancion[0]: self._quitar_cancion(cid))
             btn_quitar.pack(side="right", padx=10)
-    
+
+    def _reproducir_por_indice(self, index):
+        if 0 <= index < len(self._canciones_list):
+            self._current_index = index
+            self.app.reproducir_cancion(self._canciones_list[index])
+            self.app.set_siguiente_callback(self._avanzar_siguiente)
+
+    def _avanzar_siguiente(self):
+        next_index = self._current_index + 1
+        if next_index < len(self._canciones_list):
+            self._reproducir_por_indice(next_index)
+
     def _reproducir_cancion(self, cancion_data):
+        for i, c in enumerate(self._canciones_list):
+            if c['id'] == cancion_data['id']:
+                self._reproducir_por_indice(i)
+                return
         self.app.reproducir_cancion(cancion_data)
     
     def _quitar_cancion(self, id_cancion):
