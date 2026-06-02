@@ -247,11 +247,11 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT c.Id, c.Nombre, c.Duracion, pe.Nombre as Artista
-                       FROM Cancion_Playlist cp
-                       JOIN Cancion c ON cp.id_cancion = c.Id
-                       LEFT JOIN Persona pe ON c.id_artista = pe.id_persona
-                       WHERE cp.id_playlist = :1"""
+            query = """SELECT c.Id, c.Nombre, c.Duracion, pe.Nombre as Artista, c.RutaArchivo
+                        FROM Cancion_Playlist cp
+                        JOIN Cancion c ON cp.id_cancion = c.Id
+                        LEFT JOIN Persona pe ON c.id_artista = pe.id_persona
+                        WHERE cp.id_playlist = :1"""
             cursor.execute(query, (id_playlist,))
             results = cursor.fetchall()
             

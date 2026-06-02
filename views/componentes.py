@@ -57,27 +57,32 @@ class Componentes:
     @staticmethod
     def cancion_row(parent, cancion_data, on_click=None, on_double_click=None, mostrar_icono=True):
         """Fila de canción reutilizable"""
+        # on_double_click se acepta por compatibilidad; si no hay on_click, lo usa como fallback
+        play_cmd = on_click or on_double_click
+
         row = tk.Frame(parent, bg=BG_DARK, cursor="hand2")
         row.pack(fill="x", pady=2)
-        
+
         if mostrar_icono:
-            # Portada pequeña
             canvas = tk.Canvas(row, width=36, height=36, bg=ACCENT, highlightthickness=0)
             canvas.pack(side="left", padx=(2, 10))
-            canvas.create_text(18, 18, text="♫", font=("Helvetica", 12), fill=ACCENT2)
-        
+            # Ícono base ♫; cambia a ▶ al hacer hover
+            canvas.create_text(18, 18, text="♫", font=("Helvetica", 12), fill=ACCENT2, tags="icon")
+        else:
+            canvas = None
+
         # Info
         info_frame = tk.Frame(row, bg=BG_DARK)
         info_frame.pack(side="left", fill="x", expand=True)
-        
+
         nombre = cancion_data.get('nombre', '')
         artista = cancion_data.get('artista', '')
-        
-        tk.Label(info_frame, text=nombre, 
-                font=("Helvetica", 10, "bold"), fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
-        tk.Label(info_frame, text=artista, 
-                font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
-        
+
+        tk.Label(info_frame, text=nombre,
+                 font=("Helvetica", 10, "bold"), fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
+        tk.Label(info_frame, text=artista,
+                 font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
+
         # Duración
         duracion = cancion_data.get('duracion', 0)
         if isinstance(duracion, (int, float)) and duracion > 0:
@@ -86,32 +91,36 @@ class Componentes:
             texto_duracion = f"{minutos}:{segundos:02d}"
         else:
             texto_duracion = str(duracion) if duracion else "0:00"
-        
-        tk.Label(row, text=texto_duracion, font=FONT_TINY, fg=TEXT_MUT, 
-                bg=BG_DARK).pack(side="right", padx=10)
-        
-        # Eventos hover
+
+        tk.Label(row, text=texto_duracion, font=FONT_TINY, fg=TEXT_MUT,
+                 bg=BG_DARK).pack(side="right", padx=10)
+
+        # Hover: resalta fila y muestra ▶ en el ícono
         def on_enter(e):
             row.configure(bg=BG_HOVER)
             info_frame.configure(bg=BG_HOVER)
             for child in info_frame.winfo_children():
                 child.configure(bg=BG_HOVER)
-        
+            if canvas:
+                canvas.itemconfigure("icon", text="▶")
+
         def on_leave(e):
             row.configure(bg=BG_DARK)
             info_frame.configure(bg=BG_DARK)
             for child in info_frame.winfo_children():
                 child.configure(bg=BG_DARK)
-        
+            if canvas:
+                canvas.itemconfigure("icon", text="♫")
+
         row.bind("<Enter>", on_enter)
         row.bind("<Leave>", on_leave)
-        
-        if on_click:
-            row.bind("<Button-1>", lambda e: on_click(cancion_data))
-        
-        if on_double_click:
-            row.bind("<Double-Button-1>", lambda e: on_double_click(cancion_data))
-        
+
+        # Un solo click reproduce
+        if play_cmd:
+            row.bind("<Button-1>", lambda _: play_cmd(cancion_data))
+            if canvas:
+                canvas.bind("<Button-1>", lambda _: play_cmd(cancion_data))
+
         return row
     
     @staticmethod

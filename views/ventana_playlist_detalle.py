@@ -83,7 +83,8 @@ class VentanaPlaylistDetalle:
                 'id': cancion[0],
                 'nombre': cancion[1],
                 'duracion': cancion[2],
-                'artista': cancion[3]
+                'artista': cancion[3],
+                'ruta_archivo': cancion[4]
             }
             
             row = Componentes.cancion_row(

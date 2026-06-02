@@ -82,11 +82,11 @@ class VentanaSearch:
         
         for cancion in canciones:
             cancion_data = {
-                'id': cancion[0],
-                'nombre': cancion[1],
-                'artista': cancion[2],
-                'album': cancion[3],
-                'duracion': cancion[4]
+                'id': cancion.id_cancion,
+                'nombre': cancion.nombre,
+                'artista': cancion.id_artista,
+                'duracion': cancion.duracion,
+                'ruta_archivo': cancion.ruta_archivo
             }
             
             Componentes.cancion_row(
