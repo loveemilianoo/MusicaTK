@@ -58,7 +58,7 @@ class VentanaSubirCancion:
         self.drop_zone.create_text(
             90, 135, text="MP3, WAV, FLAC", font=FONT_TINY, fill=TEXT_MUT)
 
-        # Botón examinar — ahora funcional  ── CAMBIA
+        # Botón examinar — ahora funcional
         btn_f = tk.Frame(left, bg=ACCENT, cursor="hand2")
         btn_f.pack(fill="x", pady=12)
         btn_lbl = tk.Label(btn_f, text="Examinar archivo", fg="white",
@@ -81,7 +81,6 @@ class VentanaSubirCancion:
         campos = [
             ("titulo",           "Título de la canción *", "Mi Canción"),
             ("fechaLanzamiento", "Fecha de lanzamiento *", "2026-12-01"),
-            ("genero",           "Género",                 "Electrónica"),
         ]
 
         for key, label, placeholder in campos:
@@ -100,6 +99,30 @@ class VentanaSubirCancion:
                                             relief="flat", bd=0)
         self.entries["duracion"].insert(0, "180")
         self.entries["duracion"].pack(fill="x", ipady=8, ipadx=10)
+
+        tk.Label(right, text="Género", font=FONT_H3, fg=TEXT_SEC,
+                bg=BG_DARK, anchor="w").pack(fill="x", pady=(10, 3))
+        # Cargar géneros de la BD
+        from controller.GeneroDAO import GeneroDAO
+        generos = GeneroDAO.listar_todos_generos()
+
+        self.genero_var = tk.StringVar()
+        self.genero_ids = {} 
+
+        genero_nombres = []
+        for g in generos:
+            genero_nombres.append(g.nombre)
+            self.genero_ids[g.nombre] = g.id_genero
+
+        if not genero_nombres:
+            genero_nombres = ["Sin género"]
+            self.genero_ids["Sin género"] = None
+        self.genero_var.set(genero_nombres[0])
+        combo_genero = tk.OptionMenu(right, self.genero_var, *genero_nombres)
+        combo_genero.config(bg=BG_CARD, fg=TEXT_PRI, font=FONT_BODY,
+                            activebackground=BG_HOVER, relief="flat",
+                            highlightthickness=0)
+        combo_genero.pack(fill="x", ipady=4)
 
         # Visibilidad
         tk.Label(right, text="Visibilidad", font=FONT_H3, fg=TEXT_SEC,

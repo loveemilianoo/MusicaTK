@@ -93,7 +93,7 @@ class GeneroDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = "SELECT * FROM Genero ORDER BY Nombre"
+            query = "SELECT * FROM Genero"
             cursor.execute(query)
             results = cursor.fetchall()
             
