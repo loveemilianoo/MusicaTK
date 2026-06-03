@@ -16,52 +16,65 @@ class VentanaPortalArtista:
     
     def mostrar(self, parent):
         """Mostrar el portal en el frame parent"""
-        # Limpiar contenido anterior
         for w in parent.winfo_children():
             w.destroy()
-        
+
+        # Contenedor scrollable
+        canvas = tk.Canvas(parent, bg=BG_DARK, highlightthickness=0)
+        scrollbar = tk.Scrollbar(parent, orient="vertical", command=canvas.yview)
+        inner = tk.Frame(canvas, bg=BG_DARK)
+
+        inner.bind("<Configure>", lambda _: canvas.configure(scrollregion=canvas.bbox("all")))
+        canvas.create_window((0, 0), window=inner, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        def _on_wheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind("<Enter>", lambda _: canvas.bind_all("<MouseWheel>", _on_wheel))
+        canvas.bind("<Leave>", lambda _: canvas.unbind_all("<MouseWheel>"))
+
         # Header con nombre artista
-        header = tk.Frame(parent, bg=BG_DARK)
+        header = tk.Frame(inner, bg=BG_DARK)
         header.pack(fill="x", pady=(0, 20))
-        
-        # Obtener datos del artista
+
         nombre_artista = self.usuario_actual.nombre
         info_artista = f"{'Banda' if self.usuario_actual.banda else 'Solista'}"
         if self.usuario_actual.disquera:
             info_artista += f" • {self.usuario_actual.disquera}"
 
-        # Banner decorativo
         banner = tk.Canvas(header, width=700, height=100, bg="#1A0A2E", highlightthickness=0)
         banner.pack(fill="x")
         banner.create_text(20, 35, text=f"🎤 {nombre_artista}", anchor="w",
                           font=("Helvetica", 20, "bold"), fill=TEXT_PRI)
         banner.create_text(20, 65, text=f"Portal de Artista • {info_artista}",
                           anchor="w", font=FONT_SMALL, fill=TEXT_SEC)
-        
+
         # Botones de acción rápida
-        actions = tk.Frame(parent, bg=BG_DARK)
+        actions = tk.Frame(inner, bg=BG_DARK)
         actions.pack(fill="x", pady=(0, 20))
-        
-        btn_subir = Componentes.btn(actions, "＋ Subir canción", 
+
+        btn_subir = Componentes.btn(actions, "＋ Subir canción",
                                      lambda: self._abrir_subir_cancion(),
                                      bg=ACCENT, fg="white")
         btn_subir.pack(side="left", padx=(0, 10))
-        
-        btn_album = Componentes.btn(actions, "💿 Crear álbum", 
+
+        btn_album = Componentes.btn(actions, "💿 Crear álbum",
                                     lambda: self._abrir_crear_album(),
                                     bg="#1A3A5C", fg=TEXT_PRI)
         btn_album.pack(side="left", padx=(0, 10))
-        
-        btn_perfil = Componentes.btn(actions, "✎ Editar perfil", 
+
+        btn_perfil = Componentes.btn(actions, "✎ Editar perfil",
                                      lambda: self._abrir_editar_perfil(),
                                      bg=BG_CARD, fg=TEXT_SEC)
         btn_perfil.pack(side="left")
-        
-        # Estadísticas
-        self._mostrar_estadisticas(parent)
-        
-        # Tabla de canciones
-        self._mostrar_mis_canciones(parent)
+
+        # Estadísticas y tabla de canciones
+        self._mostrar_estadisticas(inner)
+        self._mostrar_mis_canciones(inner)
     
     def _mostrar_estadisticas(self, parent):
         """Mostrar estadísticas del artista"""

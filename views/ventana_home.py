@@ -32,13 +32,37 @@ class VentanaHome:
     
     def _cargar_canciones_recientes(self):
         canciones = CancionDAO.obtener_todas_canciones()
-        
+
         if not canciones:
             tk.Label(self.parent, text="No hay canciones disponibles",
                     font=FONT_BODY, fg=TEXT_MUT, bg=BG_DARK).pack(pady=20)
             return
-        
-        for cancion in canciones[:10]:
+
+        # Contenedor con scroll
+        container = tk.Frame(self.parent, bg=BG_DARK)
+        container.pack(fill="both", expand=True)
+
+        canvas = tk.Canvas(container, bg=BG_DARK, highlightthickness=0)
+        scrollbar = tk.Scrollbar(container, orient="vertical", command=canvas.yview)
+        scroll_frame = tk.Frame(canvas, bg=BG_DARK)
+
+        scroll_frame.bind(
+            "<Configure>",
+            lambda _: canvas.configure(scrollregion=canvas.bbox("all"))
+        )
+        canvas.create_window((0, 0), window=scroll_frame, anchor="nw")
+        canvas.configure(yscrollcommand=scrollbar.set)
+
+        scrollbar.pack(side="right", fill="y")
+        canvas.pack(side="left", fill="both", expand=True)
+
+        def _on_wheel(event):
+            canvas.yview_scroll(int(-1 * (event.delta / 120)), "units")
+
+        canvas.bind("<Enter>", lambda _: canvas.bind_all("<MouseWheel>", _on_wheel))
+        canvas.bind("<Leave>", lambda _: canvas.unbind_all("<MouseWheel>"))
+
+        for cancion in canciones:
             cancion_data = {
                 'id': cancion.id_cancion,
                 'nombre': cancion.nombre,
@@ -47,9 +71,9 @@ class VentanaHome:
                 'duracion': cancion.duracion,
                 'ruta_archivo': cancion.ruta_archivo
             }
-            
+
             Componentes.cancion_row(
-                self.parent, 
+                scroll_frame,
                 cancion_data,
                 on_double_click=self._reproducir_cancion
             )
