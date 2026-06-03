@@ -159,14 +159,17 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento, 
-                              p.Nombre as Artista
+            query = """SELECT a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento,
+                              p.Nombre as Artista,
+                              COUNT(c.Id) as num_canciones
                        FROM Album a
                        JOIN Persona p ON a.id_persona = p.id_persona
+                       LEFT JOIN Cancion c ON c.id_album = a.Id
+                       GROUP BY a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento, p.Nombre
                        ORDER BY a.FechaLanzamiento DESC"""
             cursor.execute(query)
             results = cursor.fetchall()
-            
+
             albumes = []
             for row in results:
                 album = Album(
@@ -175,7 +178,8 @@ class AlbumDAO(BaseController):
                     nombre=row[2],
                     fecha_lanzamiento=row[3]
                 )
-                album.nombre_artista = row[4]  # Campo adicional
+                album.nombre_artista = row[4]
+                album.num_canciones = row[5]
                 albumes.append(album)
             return albumes
         except Exception as e:

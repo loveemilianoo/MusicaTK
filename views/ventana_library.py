@@ -114,8 +114,8 @@ class VentanaLibrary:
             
             info = tk.Frame(row, bg=BG_DARK)
             info.pack(side="left")
-            tk.Label(info, text=album[1], font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
-            tk.Label(info, text=f"{album[3]}  •  {album[4]} canciones", 
+            tk.Label(info, text=album.nombre, font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
+            tk.Label(info, text=f"{album.fecha_lanzamiento}  •  {album.num_canciones} canciones",
                     font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
     
     def _mostrar_artistas(self):
@@ -136,10 +136,10 @@ class VentanaLibrary:
             
             info = tk.Frame(row, bg=BG_DARK)
             info.pack(side="left")
-            nombre_completo = f"{artista[1]} {artista[2]}" if artista[2] else artista[1]
+            nombre_completo = f"{artista.nombre} {artista.apellido}" if artista.apellido else artista.nombre
             tk.Label(info, text=nombre_completo, font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
-            tipo = "Banda" if artista[3] == 1 else "Solista"
-            tk.Label(info, text=f"{tipo} • {artista[4] or 'Sin disquera'}", 
+            tipo = "Banda" if artista.banda == 1 else "Solista"
+            tk.Label(info, text=f"{tipo} • {artista.disquera or 'Sin disquera'}",
                     font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
     
     def _crear_playlist(self):
