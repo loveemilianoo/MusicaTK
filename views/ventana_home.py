@@ -69,7 +69,7 @@ class VentanaHome:
                 'artista': cancion.id_artista,
                 'album': cancion.id_album,
                 'duracion': cancion.duracion,
-                'ruta_archivo': cancion.ruta_archivo
+                'ruta_archivo': cancion.ruta_de_archivo
             }
 
             Componentes.cancion_row(

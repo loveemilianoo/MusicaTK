@@ -136,7 +136,7 @@ class VentanaLibrary:
             
             info = tk.Frame(row, bg=BG_DARK)
             info.pack(side="left")
-            nombre_completo = f"{artista.nombre} {artista.apellido}" if artista.apellido else artista.nombre
+            nombre_completo = artista.nombre_completo
             tk.Label(info, text=nombre_completo, font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
             tipo = "Banda" if artista.banda == 1 else "Solista"
             tk.Label(info, text=f"{tipo} • {artista.disquera or 'Sin disquera'}",

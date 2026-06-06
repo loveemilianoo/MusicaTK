@@ -195,7 +195,7 @@ class VentanaSubirCancion:
                 duracion=duracion,
                 id_artista=self.usuario_actual.id_persona,
                 fecha_lanzamiento=fecha_obj,
-                ruta_archivo=None
+                ruta_de_archivo=None
             )
             id_resultado = CancionDAO.crear_cancion(cancion)
 

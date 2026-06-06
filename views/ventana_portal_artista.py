@@ -41,7 +41,7 @@ class VentanaPortalArtista:
         header = tk.Frame(inner, bg=BG_DARK)
         header.pack(fill="x", pady=(0, 20))
 
-        nombre_artista = self.usuario_actual.nombre
+        nombre_artista = self.usuario_actual.nombre_completo
         info_artista = f"{'Banda' if self.usuario_actual.banda else 'Solista'}"
         if self.usuario_actual.disquera:
             info_artista += f" • {self.usuario_actual.disquera}"
@@ -176,8 +176,8 @@ class VentanaPortalArtista:
             edit_btn = tk.Label(acciones, text="✎", fg=ACCENT2, bg=BG_DARK,
                                font=FONT_BODY, cursor="hand2")
             edit_btn.pack(side="left", padx=3)
-            edit_btn.bind("<Button-1>", lambda e, cid=cancion.id_cancion: 
-                         messagebox.showinfo("Editar", f"Editar canción ID {cid}"))
+            edit_btn.bind("<Button-1>", lambda e, cid=cancion.id_cancion:
+                         self._abrir_editar_cancion(cid))
             
             # Eliminar
             delete_btn = tk.Label(acciones, text="🗑", fg="#EF4444", bg=BG_DARK,
@@ -200,6 +200,15 @@ class VentanaPortalArtista:
         """Abrir ventana de subir canción"""
         from views.ventana_subir_cancion import VentanaSubirCancion
         VentanaSubirCancion(self.usuario_actual, self.app)
+
+    def _abrir_editar_cancion(self, id_cancion):
+        """Abrir ventana de editar canción"""
+        from views.ventana_editar_cancion import VentanaEditarCancion
+
+        def on_guardado():
+            self.mostrar(self.app.content)
+
+        VentanaEditarCancion(id_cancion, self.usuario_actual, self.app, on_guardado)
     
     def _abrir_crear_album(self):
         """Abrir ventana de crear álbum"""

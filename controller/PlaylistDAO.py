@@ -14,7 +14,7 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """INSERT INTO Playlist (Nombre, id_persona, FechaCreacion) 
+            query = """INSERT INTO Playlist (Nombre, id_persona, FechaDeCreacion) 
                        VALUES (:1, :2, :3) RETURNING Id INTO :4"""
             
             id_playlist = cursor.var(oracledb.NUMBER)
@@ -75,7 +75,7 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = "SELECT * FROM Playlist WHERE id_persona = :1 ORDER BY FechaCreacion DESC"
+            query = "SELECT * FROM Playlist WHERE id_persona = :1 ORDER BY FechaDeCreacion DESC"
             cursor.execute(query, (id_persona,))
             results = cursor.fetchall()
             
@@ -104,7 +104,7 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = "UPDATE Playlist SET Nombre=:1, id_persona=:2, FechaCreacion=:3 WHERE Id=:4"
+            query = "UPDATE Playlist SET Nombre=:1, id_persona=:2, FechaDeCreacion=:3 WHERE Id=:4"
             cursor.execute(query, (playlist.nombre, playlist.id_persona,
                                    playlist.fecha_creacion, playlist.id_playlist))
             conexion.commit()
@@ -147,7 +147,7 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = "SELECT * FROM Playlist ORDER BY FechaCreacion DESC"
+            query = "SELECT * FROM Playlist ORDER BY FechaDeCreacion DESC"
             cursor.execute(query)
             results = cursor.fetchall()
             
@@ -247,7 +247,7 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT c.Id, c.Nombre, c.Duracion, pe.Nombre as Artista, c.RutaArchivo
+            query = """SELECT c.Id, c.Nombre, c.Duracion, pe.Nombre as Artista, c.RutaDeArchivo
                         FROM Cancion_Playlist cp
                         JOIN Cancion c ON cp.id_cancion = c.Id
                         LEFT JOIN Persona pe ON c.id_artista = pe.id_persona
@@ -314,13 +314,13 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT p.Id, p.Nombre, p.FechaCreacion, pe.Nombre as Usuario,
+            query = """SELECT p.Id, p.Nombre, p.FechaDeCreacion, pe.Nombre as Usuario,
                               COUNT(cp.id_cancion) as TotalCanciones
                        FROM Playlist p
                        JOIN Persona pe ON p.id_persona = pe.id_persona
                        LEFT JOIN Cancion_Playlist cp ON p.Id = cp.id_playlist
-                       GROUP BY p.Id, p.Nombre, p.FechaCreacion, pe.Nombre
-                       ORDER BY p.FechaCreacion DESC"""
+                       GROUP BY p.Id, p.Nombre, p.FechaDeCreacion, pe.Nombre
+                       ORDER BY p.FechaDeCreacion DESC"""
             cursor.execute(query)
             results = cursor.fetchall()
             
@@ -340,12 +340,12 @@ class PlaylistDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT p.Id, p.Nombre, p.FechaCreacion, pe.Nombre as Usuario,
+            query = """SELECT p.Id, p.Nombre, p.FechaDeCreacion, pe.Nombre as Usuario,
                               COUNT(cp.id_cancion) as TotalCanciones
                        FROM Playlist p
                        JOIN Persona pe ON p.id_persona = pe.id_persona
                        LEFT JOIN Cancion_Playlist cp ON p.Id = cp.id_playlist
-                       GROUP BY p.Id, p.Nombre, p.FechaCreacion, pe.Nombre
+                       GROUP BY p.Id, p.Nombre, p.FechaDeCreacion, pe.Nombre
                        ORDER BY TotalCanciones DESC
                        FETCH FIRST :1 ROWS ONLY"""
             cursor.execute(query, (limite,))
