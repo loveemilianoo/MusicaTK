@@ -310,7 +310,9 @@ class VentanaPrincipal:
                 self.lbl_tiempo_actual.config(text="0:00")
                 self._dibujar_progreso(0)
                 if self._siguiente_callback:
-                    self.ventana.after(300, self._siguiente_callback)
+                    cb = self._siguiente_callback
+                    self._siguiente_callback = None
+                    self.ventana.after(100, cb)
 
         self.timer_id = self.ventana.after(500, tick)
 
@@ -340,7 +342,7 @@ class VentanaPrincipal:
         nombre   = cancion_data.get('nombre', '')
         artista  = cancion_data.get('artista', '')
         duracion = cancion_data.get('duracion', 0)
-        ruta     = cancion_data.get('ruta_archivo')
+        ruta     = cancion_data.get('ruta_de_archivo')
 
         self.now_playing.set(f"{nombre} — {artista}")
         self.current_cancion = cancion_data
@@ -372,6 +374,9 @@ class VentanaPrincipal:
             messagebox.showwarning("Aviso",
                 "Esta canción no tiene archivo de audio asociado.",
                 parent=self.ventana)
+
+    def set_siguiente_callback(self, callback):
+        self._siguiente_callback = callback
 
     def ejecutar(self):
         self.ventana.mainloop()

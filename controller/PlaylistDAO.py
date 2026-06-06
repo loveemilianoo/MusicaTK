@@ -357,3 +357,23 @@ class PlaylistDAO(BaseController):
             return []
         finally:
             BaseController.cerrar_recursos(cursor, conexion)
+
+    # En PlaylistDAO
+    @staticmethod
+    def cancion_en_playlist(id_cancion, id_playlist):
+        """Verifica si una canción ya está en una playlist"""
+        conexion = None
+        cursor   = None
+        try:
+            conexion = BaseController.obtener_conexion()
+            cursor   = conexion.cursor()
+            query = """SELECT COUNT(*) FROM Cancion_Playlist
+                       WHERE id_cancion = :1 AND id_playlist = :2"""
+            cursor.execute(query, (id_cancion, id_playlist))
+            result = cursor.fetchone()
+            return result[0] > 0
+        except Exception as e:
+            print(f"Error al verificar canción en playlist: {e}")
+            return False
+        finally:
+            BaseController.cerrar_recursos(cursor, conexion)

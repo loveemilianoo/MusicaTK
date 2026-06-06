@@ -40,11 +40,10 @@ class VentanaSearch:
         self.resultados_frame.pack(fill="both", expand=True)
     
     def _cargar_generos(self):
-        generos = [
-            ("Synthwave", "#4A1080"), ("Lo-Fi", "#0A4A80"),
-            ("Electrónica", "#804A00"), ("Ambient", "#004A40"),
-            ("Hip-Hop", "#6A0A0A"), ("Jazz", "#2A4A00")
-        ]
+        from controller.GeneroDAO import GeneroDAO
+        colores = ["#4A1080","#0A4A80","#804A00","#004A40","#6A0A0A","#2A4A00"]
+        generos_bd = GeneroDAO.listar_todos_generos()
+        generos = [(g.nombre, colores[i % len(colores)]) for i, g in enumerate(generos_bd)]
         
         row1 = tk.Frame(self.parent, bg=BG_DARK)
         row1.pack(fill="x")
@@ -86,7 +85,7 @@ class VentanaSearch:
                 'nombre': cancion.nombre,
                 'artista': cancion.id_artista,
                 'duracion': cancion.duracion,
-                'ruta_archivo': cancion.ruta_de_archivo
+                'ruta_de_archivo': cancion.ruta_de_archivo
             }
             
             Componentes.cancion_row(
