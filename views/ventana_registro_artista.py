@@ -9,7 +9,7 @@ class VentanaRegistroArtista:
     def __init__(self):
         self.ventana = tk.Tk()
         self.ventana.title("WavePlay - Registro de Artista")
-        self.ventana.geometry("450x680")
+        self.ventana.geometry("450x700")
         self.ventana.configure(bg=BG_DARK)
         self.setup_ui()
 
@@ -17,7 +17,6 @@ class VentanaRegistroArtista:
         root = tk.Frame(self.ventana, bg=BG_DARK)
         root.pack(fill="both", expand=True, padx=30, pady=20)
 
-        # Encabezado
         Componentes.label(root, "Registro de artista", font=FONT_TITLE,
                          fg=TEXT_PRI, bg=BG_DARK, anchor="center").pack(pady=(0, 4))
         Componentes.label(root, "Crea tu perfil para subir música", font=FONT_SMALL,
@@ -26,118 +25,86 @@ class VentanaRegistroArtista:
         form = tk.Frame(root, bg=BG_DARK)
         form.pack(fill="both", expand=True)
 
-        # ── Campos personales ──────────────────────────────
+        # Nombre
         Componentes.label(form, "Nombre artístico / Nombre *", font=FONT_H3,
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
         self.entry_nombre = Componentes.entry(form, "", width=40)
         self.entry_nombre.pack(fill="x", ipady=6)
 
-        Componentes.label(form, "Apellido", font=FONT_H3,
+        # Apellido Paterno
+        Componentes.label(form, "Apellido Paterno *", font=FONT_H3,
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        self.entry_apellido = Componentes.entry(form, "", width=40)
-        self.entry_apellido.pack(fill="x", ipady=6)
+        self.entry_ap = Componentes.entry(form, "", width=40)
+        self.entry_ap.pack(fill="x", ipady=6)
 
-        Componentes.label(form, "Correo electrónico *", font=FONT_H3,
+        # Apellido Materno
+        Componentes.label(form, "Apellido Materno", font=FONT_H3,
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        self.entry_correo = Componentes.entry(form, "", width=40)
-        self.entry_correo.pack(fill="x", ipady=6)
+        self.entry_am = Componentes.entry(form, "", width=40)
+        self.entry_am.pack(fill="x", ipady=6)
 
-        Componentes.label(form, "Contraseña *", font=FONT_H3,
+        # Fecha nacimiento
+        Componentes.label(form, "Fecha de nacimiento * (YYYY-MM-DD)", font=FONT_H3,
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        self.entry_password = Componentes.entry(form, "", show="•", width=40)
-        self.entry_password.pack(fill="x", ipady=6)
+        self.entry_fecha = Componentes.entry(form, "", width=40)
+        self.entry_fecha.pack(fill="x", ipady=6)
 
-        Componentes.label(form, "Confirmar contraseña *", font=FONT_H3,
-                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        self.entry_confirmar = Componentes.entry(form, "", show="•", width=40)
-        self.entry_confirmar.pack(fill="x", ipady=6)
-
-        # Sexo
-        Componentes.label(form, "Sexo", font=FONT_H3,
-                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        sexo_frame = tk.Frame(form, bg=BG_DARK)
-        sexo_frame.pack(fill="x")
-        self.sexo_var = tk.StringVar(value="M")
-        for texto, valor in [("Masculino", "M"), ("Femenino", "F"), ("Otro", "O")]:
-            tk.Radiobutton(sexo_frame, text=texto, variable=self.sexo_var, value=valor,
-                          bg=BG_DARK, fg=TEXT_PRI, selectcolor=BG_DARK,
-                          activebackground=BG_DARK, font=FONT_BODY).pack(side="left", padx=8)
-
-        Componentes.label(form, "Edad *", font=FONT_H3,
-                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
-        self.entry_edad = Componentes.entry(form, "", width=20)
-        self.entry_edad.pack(anchor="w", ipady=6)
-
-        # ── Campos exclusivos de artista ───────────────────
         Componentes.divider(form)
 
+        # Tipo de artista
         Componentes.label(form, "Tipo de artista", font=FONT_H3,
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 4))
-        tipo_frame = tk.Frame(form, bg=BG_DARK)
-        tipo_frame.pack(fill="x")
         self.banda_var = tk.StringVar(value="0")
-        tk.Radiobutton(tipo_frame, text="Solista", variable=self.banda_var, value="0",
-                      bg=BG_DARK, fg=TEXT_PRI, selectcolor=BG_DARK,
-                      activebackground=BG_DARK, font=FONT_BODY).pack(side="left", padx=8)
-        tk.Radiobutton(tipo_frame, text="Banda", variable=self.banda_var, value="1",
-                      bg=BG_DARK, fg=TEXT_PRI, selectcolor=BG_DARK,
-                      activebackground=BG_DARK, font=FONT_BODY).pack(side="left", padx=8)
+        tipo_row = tk.Frame(form, bg=BG_DARK)
+        tipo_row.pack(fill="x")
+        for texto, val in [("Solista", "0"), ("Banda", "1")]:
+            tk.Radiobutton(tipo_row, text=texto, variable=self.banda_var,
+                          value=val, bg=BG_DARK, fg=TEXT_PRI,
+                          selectcolor=BG_DARK, activebackground=BG_DARK,
+                          font=FONT_BODY, borderwidth=0,
+                          highlightthickness=0).pack(side="left", padx=(0, 20))
 
+        # Disquera
         Componentes.label(form, "Disquera / Sello (opcional)", font=FONT_H3,
-                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
+                         fg=TEXT_SEC).pack(anchor="w", pady=(12, 2))
         self.entry_disquera = Componentes.entry(form, "", width=40)
         self.entry_disquera.pack(fill="x", ipady=6)
 
-        # ── Botones ────────────────────────────────────────
-        btn_registrar = Componentes.btn(form, "CREAR CUENTA DE ARTISTA", self._registrar,
-                                        bg=ACCENT, fg="white",
-                                        font=("Helvetica", 11, "bold"))
-        btn_registrar.pack(fill="x", pady=(20, 6))
+        # Botones
+        Componentes.btn(form, "CREAR CUENTA DE ARTISTA", self._registrar,
+                        bg=ACCENT, fg="white",
+                        font=("Helvetica", 11, "bold")).pack(fill="x", pady=(20, 6))
+        Componentes.btn(form, "← Volver al login", self._volver_login,
+                        bg=BG_CARD, fg=ACCENT2).pack(fill="x")
 
-        btn_volver = Componentes.btn(form, "← Volver al login", self._volver_login,
-                                     bg=BG_CARD, fg=ACCENT2)
-        btn_volver.pack(fill="x")
-
-    # ──────────────────────────────────────────────────────
     def _registrar(self):
         nombre   = self.entry_nombre.get().strip()
-        apellido = self.entry_apellido.get().strip()
-        correo   = self.entry_correo.get().strip()
-        password = self.entry_password.get()
-        confirmar = self.entry_confirmar.get()
-        edad_str  = self.entry_edad.get().strip()
-        disquera  = self.entry_disquera.get().strip()
-        es_banda  = int(self.banda_var.get())
+        ap       = self.entry_ap.get().strip()
+        am       = self.entry_am.get().strip()
+        fecha    = self.entry_fecha.get().strip()
+        disquera = self.entry_disquera.get().strip()
+        banda    = int(self.banda_var.get())
 
-        # Validaciones
-        if not all([nombre, correo, password, confirmar, edad_str]):
+        if not all([nombre, ap, fecha]):
             messagebox.showerror("Error", "Completa los campos obligatorios (*)",
                                  parent=self.ventana)
             return
 
-        if password != confirmar:
-            messagebox.showerror("Error", "Las contraseñas no coinciden",
+        if not self._fecha_valida(fecha):
+            messagebox.showerror("Error", "Fecha inválida. Usa YYYY-MM-DD",
                                  parent=self.ventana)
             return
 
-        try:
-            edad_int = int(edad_str)
-            if edad_int <= 0 or edad_int > 120:
-                raise ValueError
-        except ValueError:
-            messagebox.showerror("Error", "Edad inválida", parent=self.ventana)
-            return
+        from datetime import datetime
+        fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
 
-        # Crear objeto Artista y guardar
         artista = Artista(
-            nombre=nombre,
-            apellido=apellido,
-            correo=correo,
-            sexo=self.sexo_var.get(),
-            edad=edad_int,
-            banda=es_banda,
-            disquera=disquera if disquera else None,
-            contrasena=password
+            nombre           = nombre,
+            apellido_paterno = ap,
+            apellido_materno = am or None,
+            fecha_nacimiento = fecha_obj,
+            banda            = banda,
+            disquera         = disquera or None
         )
 
         resultado = ArtistaDAO.crear_artista(artista)
@@ -149,14 +116,21 @@ class VentanaRegistroArtista:
             self._volver_login()
         else:
             messagebox.showerror("Error",
-                                 "No se pudo crear la cuenta.\nEl correo puede estar en uso.",
+                                 "No se pudo crear la cuenta. Intenta de nuevo.",
                                  parent=self.ventana)
+
+    def _fecha_valida(self, fecha):
+        from datetime import datetime
+        try:
+            datetime.strptime(fecha, "%Y-%m-%d")
+            return True
+        except ValueError:
+            return False
 
     def _volver_login(self):
         self.ventana.destroy()
         from views.ventana_login import VentanaLogin
-        login = VentanaLogin()
-        login.ejecutar()
+        VentanaLogin().ejecutar()
 
     def ejecutar(self):
         self.ventana.mainloop()

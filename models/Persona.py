@@ -1,66 +1,55 @@
 from database.Conexion import ConexionDB
 
 class Persona:
-    def __init__(self, id_persona=None, nombre=None, apellido=None, correo=None, sexo=None, edad=None):
-        self._id_persona = id_persona
-        self._nombre = nombre
-        self._apellido = apellido
-        self._correo = correo
-        self._sexo = sexo
-        self._edad = edad
+    def __init__(self, id_persona=None, nombre=None, apellido_paterno=None,
+                 apellido_materno=None, fecha_nacimiento=None, fecha_fin=None):
+        self._id_persona       = id_persona
+        self._nombre           = nombre
+        self._apellido_paterno = apellido_paterno
+        self._apellido_materno = apellido_materno
+        self._fecha_nacimiento = fecha_nacimiento
+        self._fecha_fin        = fecha_fin
         self.db = ConexionDB()
 
     @property
     def id_persona(self):
         return self._id_persona
     @id_persona.setter
-    def id_persona(self, valor):
-        self._id_persona = valor
+    def id_persona(self, v): self._id_persona = v
 
     @property
     def nombre(self):
         return self._nombre
     @nombre.setter
-    def nombre(self, valor):
-        self._nombre = valor
+    def nombre(self, v): self._nombre = v
 
     @property
-    def apellido(self):
-        return self._apellido
-    @apellido.setter
-    def apellido(self, valor):
-        self._apellido = valor
+    def apellido_paterno(self):
+        return self._apellido_paterno
+    @apellido_paterno.setter
+    def apellido_paterno(self, v): self._apellido_paterno = v
 
     @property
-    def correo(self):
-        return self._correo
-    @correo.setter
-    def correo(self, valor):
-        self._correo = valor
+    def apellido_materno(self):
+        return self._apellido_materno
+    @apellido_materno.setter
+    def apellido_materno(self, v): self._apellido_materno = v
 
     @property
-    def sexo(self):
-        return self._sexo
-    @sexo.setter
-    def sexo(self, valor):
-        self._sexo = valor
+    def fecha_nacimiento(self):
+        return self._fecha_nacimiento
+    @fecha_nacimiento.setter
+    def fecha_nacimiento(self, v): self._fecha_nacimiento = v
 
     @property
-    def edad(self):
-        return self._edad
-    @edad.setter
-    def edad(self, valor):
-        self._edad = valor
+    def fecha_fin(self):
+        return self._fecha_fin
+    @fecha_fin.setter
+    def fecha_fin(self, v): self._fecha_fin = v
 
     @property
-    def nombreCompleto(self):
-        return f"{self.nombre} {self.apellido}"
-    @nombreCompleto.setter
-    def nombreCompleto(self, valor):
-        partes = valor.split()
-        if len(partes) >= 2:
-            self.nombre = partes[0]
-            self.apellido = ' '.join(partes[1:])
-        else:
-            self.nombre = valor
-            self.apellido = ''
+    def nombre_completo(self):
+        partes = [self._nombre, self._apellido_paterno]
+        if self._apellido_materno:
+            partes.append(self._apellido_materno)
+        return " ".join(partes)
