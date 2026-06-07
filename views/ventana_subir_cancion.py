@@ -195,7 +195,7 @@ class VentanaSubirCancion:
                 duracion=duracion,
                 id_artista=self.usuario_actual.id_persona,
                 fecha_lanzamiento=fecha_obj,
-                ruta_archivo=None
+                ruta_de_archivo=None
             )
             id_resultado = CancionDAO.crear_cancion(cancion)
 
@@ -214,6 +214,12 @@ class VentanaSubirCancion:
             # Guardar ruta relativa en BD
             ruta_relativa = f"audio/{nombre_destino}"
             CancionDAO.actualizar_ruta(id_resultado, ruta_relativa)
+
+            # Asociar el género seleccionado a la canción
+            id_genero = self.genero_ids.get(self.genero_var.get())
+            if id_genero is not None:
+                from controller.GeneroDAO import GeneroDAO
+                GeneroDAO.agregar_genero_a_cancion(id_resultado, id_genero)
             # ───────────────────────────────────────────────
 
             messagebox.showinfo("Éxito",

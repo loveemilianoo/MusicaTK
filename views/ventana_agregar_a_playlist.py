@@ -4,26 +4,6 @@ from views.colores import *
 from views.componentes import Componentes
 
 class VentanaAgregarAPlaylist:
-    """
-    Popup que muestra las playlists del usuario y permite
-    marcar / desmarcar en cuál añadir una canción.
-    
-    Úsalo así (desde cualquier ventana que tenga app.ventana):
-    
-        VentanaAgregarAPlaylist(
-            usuario_actual  = self.usuario_actual,
-            cancion_data    = {"id": 3, "nombre": "Neon Pulse", "artista": "Riders"},
-            app_principal   = self.app,
-            on_guardado     = lambda: self._recargar(),   # opcional
-        )
-
-    Requiere en PlaylistDAO:
-        PlaylistDAO.obtener_playlists_por_usuario(id_persona) -> list[Playlist]
-            Playlist tiene: .id_playlist, .nombre
-        PlaylistDAO.cancion_en_playlist(id_cancion, id_playlist) -> bool
-        PlaylistDAO.agregar_cancion_a_playlist(id_cancion, id_playlist) -> bool
-        PlaylistDAO.quitar_cancion_de_playlist(id_playlist, id_cancion) -> bool
-    """
 
     def __init__(self, usuario_actual, cancion_data: dict,
                  app_principal, on_guardado=None):

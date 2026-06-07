@@ -1,34 +1,24 @@
 from database.Conexion import ConexionDB
 from .Persona import Persona
 
-class Usuario (Persona):
-    def __init__(self, id_persona=None, nombre=None, apellido=None, correo=None, sexo=None, edad=None, telefono=None, membresia=None, contrasena=None):
-        super().__init__(id_persona, nombre, apellido, correo, sexo, edad)
-        self._telefono = telefono
-        self._membresia = membresia
+class Usuario(Persona):
+    def __init__(self, id_persona=None, nombre=None, apellido_paterno=None,
+                 apellido_materno=None, fecha_nacimiento=None, fecha_fin=None,
+                 telefono=None, contrasena=None):
+        super().__init__(id_persona, nombre, apellido_paterno,
+                         apellido_materno, fecha_nacimiento, fecha_fin)
+        self._telefono  = telefono
         self._contrasena = contrasena
         self.db = ConexionDB()
-    
+
     @property
     def telefono(self):
         return self._telefono
-    
     @telefono.setter
-    def telefono(self, valor):
-        self._telefono = valor
-    
-    @property
-    def membresia(self):
-        return self._membresia
-    
-    @membresia.setter
-    def membresia(self, valor):
-        self._membresia = valor
-    
+    def telefono(self, v): self._telefono = v
+
     @property
     def contrasena(self):
         return self._contrasena
-    
     @contrasena.setter
-    def contrasena(self, valor):
-        self._contrasena = valor
+    def contrasena(self, v): self._contrasena = v

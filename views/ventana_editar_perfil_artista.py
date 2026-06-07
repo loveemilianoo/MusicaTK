@@ -68,9 +68,9 @@ class VentanaEditarPerfilArtista:
         self.entries = {}
 
         campos = [
-            ("nombre",   "Nombre artístico / Nombre *", "Ej: Synthwave Riders"),
-            ("apellido", "Apellido (si aplica)",         "Ej: García"),
-            ("disquera", "Disquera / Sello",             "Ej: Indie Records"),
+            ("nombre",          "Nombre artístico / Nombre *", "Ej: Synthwave Riders"),
+            ("apellido_paterno","Apellido Paterno",             "Ej: García"),
+            ("disquera",        "Disquera / Sello",             "Ej: Indie Records"),
         ]
 
         for key, label, ph in campos:
@@ -117,6 +117,15 @@ class VentanaEditarPerfilArtista:
         cancel_l.pack(fill="x")
         for w in (cancel_f, cancel_l):
             w.bind("<Button-1>", lambda e: self.ventana.destroy())
+        # Al final de _setup_ui(), cargar datos actuales:
+        self.entries["nombre"].delete(0, tk.END)
+        self.entries["nombre"].insert(0, self.usuario_actual.nombre)
+        self.entries["apellido_paterno"].delete(0, tk.END)
+        self.entries["apellido_paterno"].insert(0, self.usuario_actual.apellido_paterno or "")
+        self.entries["disquera"].delete(0, tk.END)
+        self.entries["disquera"].insert(0, self.usuario_actual.disquera or "")
+        if self.usuario_actual.banda:
+            self.tipo_var.set("Banda")
 
     # ──────────────────────────────────────────────────────────
     def _guardar(self):
@@ -127,10 +136,10 @@ class VentanaEditarPerfilArtista:
             return
 
         datos = {
-            "nombre":   nombre,
-            "apellido": self.entries["apellido"].get().strip(),
-            "disquera": self.entries["disquera"].get().strip(),
-            "es_banda": 1 if self.tipo_var.get() == "Banda" else 0,
+            "nombre":          nombre,
+            "apellido_paterno": self.entries["apellido_paterno"].get().strip(),
+            "disquera":        self.entries["disquera"].get().strip(),
+            "es_banda":        1 if self.tipo_var.get() == "Banda" else 0,
         }
 
         # ── CONECTAR CON DAO ──────────────────────────────────

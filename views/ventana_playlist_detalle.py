@@ -86,7 +86,7 @@ class VentanaPlaylistDetalle:
                 'nombre': cancion[1],
                 'duracion': cancion[2],
                 'artista': cancion[3],
-                'ruta_archivo': cancion[4]
+                'ruta_de_archivo': cancion[4]
             }
             self._canciones_list.append(cancion_data)
 

@@ -66,10 +66,10 @@ class VentanaHome:
             cancion_data = {
                 'id': cancion.id_cancion,
                 'nombre': cancion.nombre,
-                'artista': cancion.id_artista,
-                'album': cancion.id_album,
+                'artista': cancion.nombre_artista or '',
+                'album': cancion.nombre_album or '',
                 'duracion': cancion.duracion,
-                'ruta_archivo': cancion.ruta_archivo
+                'ruta_de_archivo': cancion.ruta_de_archivo
             }
 
             Componentes.cancion_row(

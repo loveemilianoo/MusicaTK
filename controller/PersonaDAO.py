@@ -1,9 +1,9 @@
 import oracledb
-from controller.PersonaDAO import BaseController
+from controller.BaseController import BaseController
 from models.Persona import Persona
 
-class PersonaController(BaseController):
-    
+class PersonaDAO(BaseController):
+
     @staticmethod
     def crear_persona(persona):
         """Insertar una nueva persona"""
@@ -12,21 +12,20 @@ class PersonaController(BaseController):
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
-            
-            query = """INSERT INTO Persona (Nombre, Apellido, Correo, Sexo, Edad) 
-                       VALUES (:1, :2, :3, :4, :5) RETURNING id_persona INTO :6"""
-            
-            # Parámetro para el RETURNING
+
+            query = """INSERT INTO Persona
+                           (Nombre, ApellidoPaterno, ApellidoMaterno, FechaDeNacimiento)
+                       VALUES (:1, :2, :3, :4) RETURNING id_persona INTO :5"""
+
             id_persona = cursor.var(oracledb.NUMBER)
-            cursor.execute(query, (persona.nombre, persona.apellido, 
-                                   persona.correo, persona.sexo, 
-                                   persona.edad, id_persona))
-            
-            # Extraer correctamente el valor del array
+            cursor.execute(query, (persona.nombre, persona.apellido_paterno,
+                                   persona.apellido_materno, persona.fecha_nacimiento,
+                                   id_persona))
+
             id_value = id_persona.getvalue()
             if isinstance(id_value, (list, tuple)):
                 id_value = id_value[0]
-            
+
             print(f"✓ Persona '{persona.nombre}' creada con ID: {id_value}")
             conexion.commit()
             return id_value
@@ -37,7 +36,7 @@ class PersonaController(BaseController):
             return None
         finally:
             BaseController.cerrar_recursos(cursor, conexion)
-    
+
     @staticmethod
     def obtener_persona_por_id(id_persona):
         """Obtener persona por ID"""
@@ -46,19 +45,21 @@ class PersonaController(BaseController):
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
-            
-            query = "SELECT * FROM Persona WHERE id_persona = :1"
+
+            query = """SELECT id_persona, Nombre, ApellidoPaterno, ApellidoMaterno,
+                              FechaDeNacimiento, FechaDeFin
+                       FROM Persona WHERE id_persona = :1"""
             cursor.execute(query, (id_persona,))
             result = cursor.fetchone()
-            
+
             if result:
                 return Persona(
                     id_persona=result[0],
                     nombre=result[1],
-                    apellido=result[2],
-                    correo=result[3],
-                    sexo=result[4],
-                    edad=result[5]
+                    apellido_paterno=result[2],
+                    apellido_materno=result[3],
+                    fecha_nacimiento=result[4],
+                    fecha_fin=result[5]
                 )
             return None
         except Exception as e:
@@ -66,36 +67,7 @@ class PersonaController(BaseController):
             return None
         finally:
             BaseController.cerrar_recursos(cursor, conexion)
-    
-    @staticmethod
-    def obtener_persona_por_correo(correo):
-        """Obtener persona por correo"""
-        conexion = None
-        cursor = None
-        try:
-            conexion = BaseController.obtener_conexion()
-            cursor = conexion.cursor()
-            
-            query = "SELECT * FROM Persona WHERE Correo = :1"
-            cursor.execute(query, (correo,))
-            result = cursor.fetchone()
-            
-            if result:
-                return Persona(
-                    id_persona=result[0],
-                    nombre=result[1],
-                    apellido=result[2],
-                    correo=result[3],
-                    sexo=result[4],
-                    edad=result[5]
-                )
-            return None
-        except Exception as e:
-            print(f"Error al obtener persona por correo: {e}")
-            return None
-        finally:
-            BaseController.cerrar_recursos(cursor, conexion)
-    
+
     @staticmethod
     def actualizar_persona(persona):
         """Actualizar persona existente"""
@@ -104,12 +76,14 @@ class PersonaController(BaseController):
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
-            
-            query = """UPDATE Persona SET Nombre=:1, Apellido=:2, Correo=:3, 
-                       Sexo=:4, Edad=:5 WHERE id_persona=:6"""
-            cursor.execute(query, (persona.nombre, persona.apellido,
-                                   persona.correo, persona.sexo,
-                                   persona.edad, persona.id_persona))
+
+            query = """UPDATE Persona
+                       SET Nombre=:1, ApellidoPaterno=:2, ApellidoMaterno=:3,
+                           FechaDeNacimiento=:4
+                       WHERE id_persona=:5"""
+            cursor.execute(query, (persona.nombre, persona.apellido_paterno,
+                                   persona.apellido_materno, persona.fecha_nacimiento,
+                                   persona.id_persona))
             conexion.commit()
             return True
         except Exception as e:
@@ -119,7 +93,7 @@ class PersonaController(BaseController):
             return False
         finally:
             BaseController.cerrar_recursos(cursor, conexion)
-    
+
     @staticmethod
     def eliminar_persona(id_persona):
         """Eliminar persona (y sus extensiones por CASCADE)"""
@@ -128,7 +102,7 @@ class PersonaController(BaseController):
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
-            
+
             query = "DELETE FROM Persona WHERE id_persona = :1"
             cursor.execute(query, (id_persona,))
             conexion.commit()
@@ -140,7 +114,7 @@ class PersonaController(BaseController):
             return False
         finally:
             BaseController.cerrar_recursos(cursor, conexion)
-    
+
     @staticmethod
     def listar_todas_personas():
         """Listar todas las personas"""
@@ -149,20 +123,22 @@ class PersonaController(BaseController):
         try:
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
-            
-            query = "SELECT * FROM Persona ORDER BY Nombre"
+
+            query = """SELECT id_persona, Nombre, ApellidoPaterno, ApellidoMaterno,
+                              FechaDeNacimiento, FechaDeFin
+                       FROM Persona ORDER BY Nombre"""
             cursor.execute(query)
             resultados = cursor.fetchall()
-            
+
             personas = []
             for row in resultados:
                 persona = Persona(
                     id_persona=row[0],
                     nombre=row[1],
-                    apellido=row[2],
-                    correo=row[3],
-                    sexo=row[4],
-                    edad=row[5]
+                    apellido_paterno=row[2],
+                    apellido_materno=row[3],
+                    fecha_nacimiento=row[4],
+                    fecha_fin=row[5]
                 )
                 personas.append(persona)
             return personas

@@ -14,7 +14,7 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """INSERT INTO Album (id_persona, Nombre, FechaLanzamiento) 
+            query = """INSERT INTO Album (id_persona, Nombre, FechaDeLanzamiento) 
                        VALUES (:1, :2, :3) RETURNING Id INTO :4"""
             
             id_album = cursor.var(oracledb.NUMBER)
@@ -46,7 +46,7 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = "SELECT Id, id_persona, Nombre, FechaLanzamiento FROM Album WHERE Id = :1"
+            query = "SELECT Id, id_persona, Nombre, FechaDeLanzamiento FROM Album WHERE Id = :1"
             cursor.execute(query, (id_album,))
             result = cursor.fetchone()
             
@@ -73,9 +73,9 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT Id, id_persona, Nombre, FechaLanzamiento 
+            query = """SELECT Id, id_persona, Nombre, FechaDeLanzamiento 
                        FROM Album WHERE id_persona = :1 
-                       ORDER BY FechaLanzamiento DESC"""
+                       ORDER BY FechaDeLanzamiento DESC"""
             cursor.execute(query, (id_persona,))
             results = cursor.fetchall()
             
@@ -105,7 +105,7 @@ class AlbumDAO(BaseController):
             cursor = conexion.cursor()
             
             query = """UPDATE Album SET Nombre=:1, id_persona=:2, 
-                       FechaLanzamiento=:3 WHERE Id=:4"""
+                       FechaDeLanzamiento=:3 WHERE Id=:4"""
             cursor.execute(query, (album.nombre, album.id_persona,
                                    album.fecha_lanzamiento, album.id_album))
             conexion.commit()
@@ -159,14 +159,14 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento,
+            query = """SELECT a.Id, a.id_persona, a.Nombre, a.FechaDeLanzamiento,
                               p.Nombre as Artista,
                               COUNT(c.Id) as num_canciones
                        FROM Album a
                        JOIN Persona p ON a.id_persona = p.id_persona
                        LEFT JOIN Cancion c ON c.id_album = a.Id
-                       GROUP BY a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento, p.Nombre
-                       ORDER BY a.FechaLanzamiento DESC"""
+                       GROUP BY a.Id, a.id_persona, a.Nombre, a.FechaDeLanzamiento, p.Nombre
+                       ORDER BY a.FechaDeLanzamiento DESC"""
             cursor.execute(query)
             results = cursor.fetchall()
 
@@ -197,7 +197,7 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT Id, id_persona, Nombre, FechaLanzamiento 
+            query = """SELECT Id, id_persona, Nombre, FechaDeLanzamiento 
                        FROM Album 
                        WHERE LOWER(Nombre) LIKE :1
                        ORDER BY Nombre"""
@@ -231,11 +231,11 @@ class AlbumDAO(BaseController):
             
             # Sintaxis compatible con Oracle
             query = """SELECT * FROM (
-                          SELECT a.Id, a.id_persona, a.Nombre, a.FechaLanzamiento,
+                          SELECT a.Id, a.id_persona, a.Nombre, a.FechaDeLanzamiento,
                                  p.Nombre as Artista
                           FROM Album a
                           JOIN Persona p ON a.id_persona = p.id_persona
-                          ORDER BY a.FechaLanzamiento DESC
+                          ORDER BY a.FechaDeLanzamiento DESC
                       ) WHERE ROWNUM <= :1"""
             cursor.execute(query, (limite,))
             results = cursor.fetchall()
@@ -266,20 +266,24 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT Id, Nombre, Duracion, No_track
-                       FROM Cancion
-                       WHERE id_album = :1
-                       ORDER BY No_track"""
+            query = """SELECT c.Id, c.Nombre, c.Duracion, c.NumeroDeTrack,
+                              p.Nombre as Artista, c.RutaDeArchivo
+                       FROM Cancion c
+                       JOIN Persona p ON c.id_artista = p.id_persona
+                       WHERE c.id_album = :1
+                       ORDER BY c.NumeroDeTrack NULLS LAST"""
             cursor.execute(query, (id_album,))
             results = cursor.fetchall()
-            
+
             canciones = []
             for row in results:
                 canciones.append({
                     'id': row[0],
                     'nombre': row[1],
                     'duracion': row[2],
-                    'track': row[3]
+                    'track': row[3],
+                    'artista': row[4],
+                    'ruta_de_archivo': row[5]
                 })
             return canciones
         except Exception as e:
@@ -339,7 +343,7 @@ class AlbumDAO(BaseController):
             
             # Actualizar la canción con el ID del álbum
             if numero_track is not None:
-                query = "UPDATE Cancion SET id_album = :1, No_track = :2 WHERE Id = :3"
+                query = "UPDATE Cancion SET id_album = :1, NumeroDeTrack = :2 WHERE Id = :3"
                 cursor.execute(query, (id_album, numero_track, id_cancion))
             else:
                 query = "UPDATE Cancion SET id_album = :1 WHERE Id = :2"

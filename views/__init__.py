@@ -2,6 +2,9 @@ from .colores import *
 from .componentes import Componentes
 from .ventana_login import VentanaLogin
 from .ventana_registro import VentanaRegistro
+from .ventana_registro_artista import VentanaRegistroArtista
+from .ventana_seleccion_rol import VentanaSeleccionRol         
+from .ventana_convertir_artista import VentanaConvertirArtista 
 from .ventana_principal import VentanaPrincipal
 from .ventana_home import VentanaHome
 from .ventana_search import VentanaSearch
@@ -12,14 +15,16 @@ from .ventana_seleccionar_cancion import VentanaSeleccionarCancion
 from .ventana_agregar_a_playlist import VentanaAgregarAPlaylist
 from .ventana_crear_album import VentanaCrearAlbum
 from .ventana_editar_perfil_artista import VentanaEditarPerfilArtista
-from .ventana_registro_artista import VentanaRegistroArtista    
 
 __all__ = [
     'VentanaLogin',
     'VentanaRegistro',
+    'VentanaRegistroArtista',
+    'VentanaSeleccionRol',
+    'VentanaConvertirArtista',
     'VentanaPrincipal',
     'VentanaHome',
-    'VentanaSearch', 
+    'VentanaSearch',
     'VentanaLibrary',
     'VentanaPlaylistDetalle',
     'VentanaCrearPlaylist',
@@ -28,5 +33,4 @@ __all__ = [
     'VentanaCrearAlbum',
     'VentanaEditarPerfilArtista',
     'Componentes',
-    'VentanaRegistroArtista'
 ]
