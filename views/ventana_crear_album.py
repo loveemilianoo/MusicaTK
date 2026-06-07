@@ -224,8 +224,8 @@ class VentanaCrearAlbum:
             album = Album(nombre=nombre, id_persona=self.usuario_actual.id_persona, fecha_lanzamiento=fecha_obj)
             id_album = AlbumDAO.crear_album(album)
             if id_album:
-                for c in self.tracklist:
-                    AlbumDAO.agregar_cancion_a_album(id_album, c["id"])
+                for numero_track, c in enumerate(self.tracklist, 1):
+                    AlbumDAO.agregar_cancion_a_album(id_album, c["id"], numero_track)
                 messagebox.showinfo("Éxito", f"Álbum '{nombre}' publicado.", parent=self.ventana)
                 if self.on_creado:
                     self.on_creado()

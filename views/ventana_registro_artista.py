@@ -3,6 +3,7 @@ from tkinter import messagebox
 from views.colores import *
 from views.componentes import Componentes
 from controller.ArtistaDAO import ArtistaDAO
+from controller.IdentidadGeneroDAO import IdentidadGeneroDAO
 from models.Artista import Artista
 
 class VentanaRegistroArtista:
@@ -48,6 +49,27 @@ class VentanaRegistroArtista:
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
         self.entry_fecha = Componentes.entry(form, "", width=40)
         self.entry_fecha.pack(fill="x", ipady=6)
+
+        # Fecha de fallecimiento (opcional, para artistas fallecidos)
+        Componentes.label(form, "Fecha de fallecimiento (YYYY-MM-DD, opcional)",
+                         font=FONT_H3, fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
+        self.entry_fecha_fin = Componentes.entry(form, "", width=40)
+        self.entry_fecha_fin.pack(fill="x", ipady=6)
+
+        # Identidad de género
+        Componentes.label(form, "Identidad de género", font=FONT_H3,
+                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
+        self.identidades = IdentidadGeneroDAO.listar_todas()
+        self.identidad_ids = {i.identidad: i.id_identidad for i in self.identidades}
+        self.identidad_var = tk.StringVar()
+        nombres = list(self.identidad_ids.keys()) or ["Sin especificar"]
+        if "Sin especificar" not in self.identidad_ids:
+            self.identidad_ids.setdefault("Sin especificar", None)
+        self.identidad_var.set(nombres[0])
+        combo = tk.OptionMenu(form, self.identidad_var, *nombres)
+        combo.config(bg=BG_CARD, fg=TEXT_PRI, font=FONT_BODY,
+                     activebackground=BG_HOVER, relief="flat", highlightthickness=0)
+        combo.pack(fill="x", ipady=4)
 
         Componentes.divider(form)
 
@@ -98,11 +120,29 @@ class VentanaRegistroArtista:
         from datetime import datetime
         fecha_obj = datetime.strptime(fecha, "%Y-%m-%d").date()
 
+        # Fecha de fallecimiento (opcional)
+        fecha_fin_str = self.entry_fecha_fin.get().strip()
+        fecha_fin_obj = None
+        if fecha_fin_str:
+            if not self._fecha_valida(fecha_fin_str):
+                messagebox.showerror("Error",
+                                     "Fecha de fallecimiento inválida. Usa YYYY-MM-DD",
+                                     parent=self.ventana)
+                return
+            fecha_fin_obj = datetime.strptime(fecha_fin_str, "%Y-%m-%d").date()
+            if fecha_fin_obj < fecha_obj:
+                messagebox.showerror("Error",
+                                     "La fecha de fallecimiento no puede ser anterior "
+                                     "a la de nacimiento",
+                                     parent=self.ventana)
+                return
+
         artista = Artista(
             nombre           = nombre,
             apellido_paterno = ap,
             apellido_materno = am or None,
             fecha_nacimiento = fecha_obj,
+            fecha_fin        = fecha_fin_obj,
             banda            = banda,
             disquera         = disquera or None
         )
@@ -110,6 +150,11 @@ class VentanaRegistroArtista:
         resultado = ArtistaDAO.crear_artista(artista)
 
         if resultado:
+            # Guardar identidad de género seleccionada
+            id_identidad = self.identidad_ids.get(self.identidad_var.get())
+            if id_identidad is not None:
+                IdentidadGeneroDAO.asignar_a_persona(resultado, id_identidad)
+
             messagebox.showinfo("Éxito",
                                 f"Cuenta de artista creada.\n¡Bienvenido {nombre}!",
                                 parent=self.ventana)

@@ -86,9 +86,11 @@ class CancionDAO(BaseController):
 
             query = """SELECT c.Id, c.Nombre, c.Duracion, c.id_artista,
                               p.Nombre as Artista, c.id_album,
-                              c.FechaDeLanzamiento, c.RutaDeArchivo
+                              c.FechaDeLanzamiento, c.RutaDeArchivo,
+                              a.Nombre as Album
                        FROM Cancion c
                        JOIN Persona p ON c.id_artista = p.id_persona
+                       LEFT JOIN Album a ON c.id_album = a.Id
                        ORDER BY c.FechaDeLanzamiento DESC"""
             cursor.execute(query)
             results = cursor.fetchall()
@@ -105,6 +107,7 @@ class CancionDAO(BaseController):
                     ruta_de_archivo=row[7]  # ── NUEVO
                 )
                 cancion.nombre_artista = row[4]
+                cancion.nombre_album = row[8]
                 canciones.append(cancion)
             return canciones
         except Exception as e:

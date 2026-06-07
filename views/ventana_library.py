@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import messagebox
 from views.colores import *
 from views.componentes import Componentes
 from controller.PlaylistDAO import PlaylistDAO
@@ -12,6 +13,9 @@ class VentanaLibrary:
         self.app = app_principal
         self.recargar_sidebar = recargar_sidebar_callback
         self.current_tab = "playlists"
+        # Cola de reproducción del álbum en curso
+        self._album_cola = []
+        self._album_index = -1
     
     def mostrar(self):
         header = tk.Frame(self.parent, bg=BG_DARK)
@@ -107,17 +111,48 @@ class VentanaLibrary:
         for album in albumes:
             row = tk.Frame(self.content_frame, bg=BG_DARK, cursor="hand2")
             row.pack(fill="x", pady=3)
-            
+
             canvas = tk.Canvas(row, width=44, height=44, bg="#1A1A2E", highlightthickness=0)
             canvas.pack(side="left", padx=(0, 10))
-            canvas.create_text(22, 22, text="◉", font=("Helvetica", 14), fill=ACCENT)
-            
+            canvas.create_text(22, 22, text="▶", font=("Helvetica", 14), fill=ACCENT)
+
             info = tk.Frame(row, bg=BG_DARK)
             info.pack(side="left")
-            tk.Label(info, text=album.nombre, font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK).pack(anchor="w")
-            tk.Label(info, text=f"{album.fecha_lanzamiento}  •  {album.num_canciones} canciones",
-                    font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK).pack(anchor="w")
+            nombre_lbl = tk.Label(info, text=album.nombre, font=FONT_H3, fg=TEXT_PRI, bg=BG_DARK)
+            nombre_lbl.pack(anchor="w")
+            detalle_lbl = tk.Label(info, text=f"{album.fecha_lanzamiento}  •  {album.num_canciones} canciones",
+                    font=FONT_SMALL, fg=TEXT_SEC, bg=BG_DARK)
+            detalle_lbl.pack(anchor="w")
+
+            # Click en cualquier parte de la fila → reproducir el álbum en orden
+            for w in (row, canvas, info, nombre_lbl, detalle_lbl):
+                w.bind("<Button-1>", lambda e, aid=album.id_album: self._reproducir_album(aid))
     
+    def _reproducir_album(self, id_album):
+        """Reproduce todas las canciones del álbum en orden de track."""
+        canciones = AlbumDAO.obtener_canciones_del_album(id_album)
+        # Solo las que tienen archivo de audio, conservando el orden
+        self._album_cola = [c for c in canciones if c.get('ruta_de_archivo')]
+
+        if not self._album_cola:
+            messagebox.showinfo("Álbum",
+                                "Este álbum no tiene canciones reproducibles.",
+                                parent=self.app.ventana)
+            return
+
+        self._reproducir_album_indice(0)
+
+    def _reproducir_album_indice(self, index):
+        if 0 <= index < len(self._album_cola):
+            self._album_index = index
+            self.app.reproducir_cancion(self._album_cola[index])
+            self.app.set_siguiente_callback(self._album_siguiente)
+
+    def _album_siguiente(self):
+        siguiente = self._album_index + 1
+        if siguiente < len(self._album_cola):
+            self._reproducir_album_indice(siguiente)
+
     def _mostrar_artistas(self):
         artistas = ArtistaDAO.listar_todos_artistas()
         

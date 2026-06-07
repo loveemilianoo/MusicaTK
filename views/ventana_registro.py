@@ -3,6 +3,7 @@ from tkinter import messagebox
 from views.colores import *
 from views.componentes import Componentes
 from controller.UsuarioDAO import UsuarioDAO
+from controller.IdentidadGeneroDAO import IdentidadGeneroDAO
 from models.Usuario import Usuario
 
 class VentanaRegistro:
@@ -52,6 +53,21 @@ class VentanaRegistro:
                          fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
         self.entry_telefono = Componentes.entry(form, "", width=40)
         self.entry_telefono.pack(fill="x", ipady=6)
+
+        # Identidad de género
+        Componentes.label(form, "Identidad de género", font=FONT_H3,
+                         fg=TEXT_SEC).pack(anchor="w", pady=(8, 2))
+        self.identidades = IdentidadGeneroDAO.listar_todas()
+        self.identidad_ids = {i.identidad: i.id_identidad for i in self.identidades}
+        self.identidad_var = tk.StringVar()
+        nombres = list(self.identidad_ids.keys()) or ["Sin especificar"]
+        if "Sin especificar" not in self.identidad_ids:
+            self.identidad_ids.setdefault("Sin especificar", None)
+        self.identidad_var.set(nombres[0])
+        combo = tk.OptionMenu(form, self.identidad_var, *nombres)
+        combo.config(bg=BG_CARD, fg=TEXT_PRI, font=FONT_BODY,
+                     activebackground=BG_HOVER, relief="flat", highlightthickness=0)
+        combo.pack(fill="x", ipady=4)
 
         # Contraseña
         Componentes.label(form, "Contraseña *", font=FONT_H3,
@@ -111,6 +127,11 @@ class VentanaRegistro:
         resultado = UsuarioDAO.crear_usuario(usuario)
 
         if resultado:
+            # Guardar identidad de género seleccionada
+            id_identidad = self.identidad_ids.get(self.identidad_var.get())
+            if id_identidad is not None:
+                IdentidadGeneroDAO.asignar_a_persona(resultado, id_identidad)
+
             messagebox.showinfo("Éxito", "Cuenta creada exitosamente",
                                 parent=self.ventana)
             self._volver_login()

@@ -266,20 +266,24 @@ class AlbumDAO(BaseController):
             conexion = BaseController.obtener_conexion()
             cursor = conexion.cursor()
             
-            query = """SELECT Id, Nombre, Duracion, NumeroDeTrack
-                       FROM Cancion
-                       WHERE id_album = :1
-                       ORDER BY NumeroDeTrack"""
+            query = """SELECT c.Id, c.Nombre, c.Duracion, c.NumeroDeTrack,
+                              p.Nombre as Artista, c.RutaDeArchivo
+                       FROM Cancion c
+                       JOIN Persona p ON c.id_artista = p.id_persona
+                       WHERE c.id_album = :1
+                       ORDER BY c.NumeroDeTrack NULLS LAST"""
             cursor.execute(query, (id_album,))
             results = cursor.fetchall()
-            
+
             canciones = []
             for row in results:
                 canciones.append({
                     'id': row[0],
                     'nombre': row[1],
                     'duracion': row[2],
-                    'track': row[3]
+                    'track': row[3],
+                    'artista': row[4],
+                    'ruta_de_archivo': row[5]
                 })
             return canciones
         except Exception as e:

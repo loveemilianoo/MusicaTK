@@ -14,15 +14,17 @@ class ArtistaDAO(BaseController):
             cursor   = conexion.cursor()
 
             query_persona = """INSERT INTO Persona
-                                   (Nombre, ApellidoPaterno, ApellidoMaterno, FechaDeNacimiento)
-                               VALUES (:1, :2, :3, :4)
-                               RETURNING id_persona INTO :5"""
+                                   (Nombre, ApellidoPaterno, ApellidoMaterno,
+                                    FechaDeNacimiento, FechaDeFin)
+                               VALUES (:1, :2, :3, :4, :5)
+                               RETURNING id_persona INTO :6"""
             id_var = cursor.var(oracledb.NUMBER)
             cursor.execute(query_persona, (
                 artista.nombre,
                 artista.apellido_paterno,
                 artista.apellido_materno,
                 artista.fecha_nacimiento,
+                artista.fecha_fin,
                 id_var
             ))
             id_val = id_var.getvalue()
